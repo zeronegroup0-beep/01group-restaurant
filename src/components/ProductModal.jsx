@@ -410,23 +410,35 @@ export default function ProductModal({
             value={specialNote}
             onChange={(e) => setSpecialNote(e.target.value)}
             placeholder={language === 'ar' ? 'مثال: بدون ثوم، حساسية من المكسرات...' : 'e.g., No garlic, nut allergy...'}
+            dir={language === 'ar' ? 'rtl' : 'ltr'}
             style={{
               width: '100%',
-              minHeight: '80px',
-              maxHeight: '80px',
-              backgroundColor: '#1a1a1a',
-              border: '1px solid var(--border-color)',
-              borderRadius: '8px',
-              padding: '1rem',
-              color: 'var(--text-primary)',
-              resize: 'vertical',
+              minHeight: '85px',
+              maxHeight: '120px',
+              backgroundColor: '#ffffff',
+              border: '1.5px solid var(--border-color)',
+              borderRadius: '12px',
+              padding: '0.9rem 1.1rem',
+              color: '#000000',
+              WebkitTextFillColor: '#000000',
+              resize: 'none',
               fontSize: '1rem',
+              fontWeight: '500',
               outline: 'none',
-              transition: 'border-color 0.2s',
-              fontFamily: 'inherit'
+              transition: 'all 0.2s ease',
+              fontFamily: 'inherit',
+              boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.04)',
+              textAlign: language === 'ar' ? 'right' : 'left',
+              lineHeight: '1.5'
             }}
-            onFocus={(e) => e.target.style.borderColor = 'var(--brand-red)'}
-            onBlur={(e) => e.target.style.borderColor = 'var(--border-color)'}
+            onFocus={(e) => {
+              e.target.style.borderColor = 'var(--gold)';
+              e.target.style.boxShadow = '0 0 0 3px rgba(212, 175, 55, 0.18)';
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = 'var(--border-color)';
+              e.target.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.04)';
+            }}
           />
         </div>
 

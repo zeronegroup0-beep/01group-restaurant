@@ -3,9 +3,24 @@ import { createPortal } from 'react-dom';
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
-import { CreditCard, ShoppingBag, Smartphone, CheckCircle, Navigation, Banknote, AlertTriangle, X, Edit2, Trash2 } from 'lucide-react';
+import { Store, ShoppingBag, CheckCircle, Navigation, Banknote, AlertTriangle, X, Edit2, Trash2, MapPin, Truck } from 'lucide-react';
 import ProductModal from '../components/ProductModal';
 import RecommendationsModal from '../components/RecommendationsModal';
+
+const BRANCHES = [
+  {
+    id: 'branch-1',
+    name_ar: 'فرع 1: القاهرة (مدينة نصر - شارع عباس العقاد)',
+    name_en: 'Branch 1: Cairo (Nasr City - Abbas El Akkad St)',
+    phone: '19000'
+  },
+  {
+    id: 'branch-2',
+    name_ar: 'فرع 2: المنصورة (شارع الجيش / المشاية - كورنيش النيل)',
+    name_en: 'Branch 2: Mansoura (El Geish St / Nile Corniche)',
+    phone: '19000'
+  }
+];
 
 const ConfirmationModal = ({ isOpen, onClose, onConfirm, countdown, title, message, confirmText, cancelText }) => {
   useEffect(() => {
@@ -49,60 +64,7 @@ function CheckoutForm({ formData, setFormData, cart, cartTotal, status, setStatu
   const [confirmedOrderData, setConfirmedOrderData] = useState(null);
   const isSubmittingRef = React.useRef(false);
 
-  const INTEGRATION_IDS = {
-    cards: 5811753,
-    wallets: "PLACEHOLDER_WALLETS",
-    instapay: "PLACEHOLDER_INSTAPAY"
-  };
 
-  const initiatePaymobRedirect = async () => {
-    setStatus({ type: 'loading', message: language === 'ar' ? 'جاري التحويل لبوابة الدفع الآمنة...' : 'Redirecting to secure payment gateway...' });
-    
-    let addressParts = [formData.street];
-    if (formData.building) addressParts.push(`${language === 'ar' ? 'مبنى' : 'Building'} ${formData.building}`);
-    if (formData.floor) addressParts.push(`${language === 'ar' ? 'طابق' : 'Floor'} ${formData.floor}`);
-    const addressStr = addressParts.join(', ');
-
-    let globalCounter = parseInt(localStorage.getItem('globalOrderCounter') || '7023', 10);
-    globalCounter += 1;
-    localStorage.setItem('globalOrderCounter', globalCounter.toString());
-    const tempOrderId = `temp_${Date.now()}_${globalCounter}`;
-
-    try {
-      const payload = {
-        orderId: tempOrderId,
-        total: cartTotal,
-        items: cart,
-        name: formData.name,
-        address: addressStr,
-        phone: formData.phone,
-        paymentMethod: formData.paymentMethod,
-        walletNumber: formData.walletOrInstaPayNumber
-      };
-
-      sessionStorage.setItem('pendingOrder', JSON.stringify({
-        ...payload,
-        daily_id: globalCounter,
-        notes: formData.notes
-      }));
-
-      const response = await fetch(`${API}/api/payment/paymob`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const data = await response.json();
-      
-      if (data.success && data.redirectUrl) {
-        window.location.href = data.redirectUrl;
-      } else {
-        setStatus({ type: 'error', message: language === 'ar' ? 'حدث خطأ في تجهيز الدفع' : 'Error preparing payment' });
-      }
-    } catch (err) {
-      console.error(err);
-      setStatus({ type: 'error', message: language === 'ar' ? 'خطأ في الاتصال بخادم الدفع' : 'Payment server error' });
-    }
-  };
 
 
   const closeSuccessModal = () => {
@@ -142,7 +104,7 @@ function CheckoutForm({ formData, setFormData, cart, cartTotal, status, setStatu
     anyCash: language === 'ar' ? 'الدفع نقداً' : 'Any Cash',
     vodafoneNote: language === 'ar' ? 'سيتصل بك ممثل عبر فودافون كاش عند التسليم.' : 'A representative will contact you via Vodafone Cash on delivery.',
     cashNote: language === 'ar' ? 'ستدفع نقداً عند الاستلام.' : 'You will pay in cash upon delivery.',
-    confirmBtn: language === 'ar' ? `تأكيد الطلب والدفع ${cartTotal} جنيه` : `Confirm Order & Pay ${cartTotal} EGP`,
+    confirmBtn: language === 'ar' ? `تأكيد الطلب (${cartTotal} ج.م)` : `Confirm Order (${cartTotal} EGP)`,
     trackOrder: (id) => language === 'ar' ? `تتبع الطلب #${id}` : `Track Order #${id}`,
   };
 
@@ -150,7 +112,12 @@ function CheckoutForm({ formData, setFormData, cart, cartTotal, status, setStatu
     e.preventDefault();
     if (!cart || cart.length === 0) return;
 
-    if (!formData.name || !formData.phone || !formData.street) {
+    if (!formData.name || !formData.phone) {
+      setStatus({ type: 'error', message: t.fillFields });
+      return;
+    }
+
+    if (formData.paymentMethod !== 'pickup' && !formData.street) {
       setStatus({ type: 'error', message: t.fillFields });
       return;
     }
@@ -164,16 +131,27 @@ function CheckoutForm({ formData, setFormData, cart, cartTotal, status, setStatu
     setConfirmCountdown(5);
   };
 
-  const createOrderInDB = async (isPaidByCard = false) => {
-    if (isSubmittingRef.current && !isPaidByCard) return;
+  const createOrderInDB = async () => {
+    if (isSubmittingRef.current) return;
     isSubmittingRef.current = true;
     setIsSubmittingState(true);
     
     setStatus({ type: 'loading', message: t.processing });
-    let addressParts = [formData.street];
-    if (formData.building) addressParts.push(`${language === 'ar' ? 'مبنى' : 'Building'} ${formData.building}`);
-    if (formData.floor) addressParts.push(`${language === 'ar' ? 'طابق' : 'Floor'} ${formData.floor}`);
-    const addressStr = addressParts.join(', ');
+
+    const isPickup = formData.paymentMethod === 'pickup';
+    const selectedBranchObj = BRANCHES.find(b => b.id === (formData.selectedBranch || 'branch-1')) || BRANCHES[0];
+
+    let addressStr = '';
+    if (isPickup) {
+      addressStr = language === 'ar' 
+        ? `استلام من الفرع: ${selectedBranchObj.name_ar}` 
+        : `Branch Pickup: ${selectedBranchObj.name_en}`;
+    } else {
+      let addressParts = [formData.street];
+      if (formData.building) addressParts.push(`${language === 'ar' ? 'مبنى' : 'Building'} ${formData.building}`);
+      if (formData.floor) addressParts.push(`${language === 'ar' ? 'طابق' : 'Floor'} ${formData.floor}`);
+      addressStr = addressParts.join(', ');
+    }
 
     let globalCounter = parseInt(localStorage.getItem('globalOrderCounter') || '7023', 10);
     globalCounter += 1;
@@ -188,7 +166,9 @@ function CheckoutForm({ formData, setFormData, cart, cartTotal, status, setStatu
         name: formData.name,
         phone: formData.phone,
         notes: formData.notes,
-        paymentMethod: formData.paymentMethod,
+        paymentMethod: isPickup 
+          ? (language === 'ar' ? 'استلام من الفرع' : 'Pickup from Branch') 
+          : (language === 'ar' ? 'الدفع عند الاستلام' : 'Cash on Delivery'),
         daily_id: dailyOrderId
       };
 
@@ -217,7 +197,6 @@ function CheckoutForm({ formData, setFormData, cart, cartTotal, status, setStatu
       }
     } catch (err) {
       console.error('Checkout failed', err);
-      console.log('Order Submit Error:', err.response?.data || err.message || err);
       setStatus({ type: 'error', message: err.message || t.networkError });
     } finally {
       isSubmittingRef.current = false;
@@ -227,11 +206,7 @@ function CheckoutForm({ formData, setFormData, cart, cartTotal, status, setStatu
 
   const proceedCheckout = () => {
     setShowConfirmModal(false);
-    if (formData.paymentMethod === 'cards' || formData.paymentMethod === 'wallets') {
-      initiatePaymobRedirect();
-    } else {
-      createOrderInDB(false);
-    }
+    createOrderInDB();
   };
 
   const handleChange = (e) => {
@@ -276,10 +251,11 @@ function CheckoutForm({ formData, setFormData, cart, cartTotal, status, setStatu
   return (
     <form onSubmit={handleCheckout} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
 
-      {/* 1. Delivery Details */}
+      {/* 1. Delivery or Pickup Details */}
       <div style={{ padding: '2rem', backgroundColor: 'var(--card-bg)', borderRadius: '12px', border: '1px solid var(--border-color)', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
         <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--gold)', marginBottom: '1.5rem', fontSize: '1.5rem' }}>
-          <Navigation size={24} /> {language === 'ar' ? '١.' : '1.'} {t.deliveryTitle}
+          {formData.paymentMethod === 'pickup' ? <Store size={24} /> : <Truck size={24} />}
+          {language === 'ar' ? '١.' : '1.'} {formData.paymentMethod === 'pickup' ? (language === 'ar' ? 'بيانات المستلم' : 'Customer Details') : t.deliveryTitle}
         </h3>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -300,23 +276,28 @@ function CheckoutForm({ formData, setFormData, cart, cartTotal, status, setStatu
             </div>
           </div>
 
-          {/* Street Address */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <label htmlFor="street" style={labelStyle}>{t.street}</label>
-            <input type="text" id="street" name="street" value={formData.street || ''} onChange={handleChange} required placeholder={t.streetPH} style={inputStyle} />
-          </div>
+          {/* Address fields: Only displayed for Delivery */}
+          {formData.paymentMethod !== 'pickup' && (
+            <>
+              {/* Street Address */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <label htmlFor="street" style={labelStyle}>{t.street}</label>
+                <input type="text" id="street" name="street" value={formData.street || ''} onChange={handleChange} required placeholder={t.streetPH} style={inputStyle} />
+              </div>
 
-          {/* Building & Floor */}
-          <div className="responsive-grid-2">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <label htmlFor="building" style={labelStyle}>{t.building}</label>
-              <input type="text" id="building" name="building" value={formData.building || ''} onChange={handleChange} placeholder={language === 'ar' ? '(اختياري)' : '(optional)'} style={inputStyle} />
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <label htmlFor="floor" style={labelStyle}>{t.floor}</label>
-              <input type="text" id="floor" name="floor" value={formData.floor || ''} onChange={handleChange} placeholder={language === 'ar' ? '(اختياري)' : '(optional)'} style={inputStyle} />
-            </div>
-          </div>
+              {/* Building & Floor */}
+              <div className="responsive-grid-2">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <label htmlFor="building" style={labelStyle}>{t.building}</label>
+                  <input type="text" id="building" name="building" value={formData.building || ''} onChange={handleChange} placeholder={language === 'ar' ? '(اختياري)' : '(optional)'} style={inputStyle} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <label htmlFor="floor" style={labelStyle}>{t.floor}</label>
+                  <input type="text" id="floor" name="floor" value={formData.floor || ''} onChange={handleChange} placeholder={language === 'ar' ? '(اختياري)' : '(optional)'} style={inputStyle} />
+                </div>
+              </div>
+            </>
+          )}
 
           {/* Notes */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -326,66 +307,159 @@ function CheckoutForm({ formData, setFormData, cart, cartTotal, status, setStatu
         </div>
       </div>
 
-      {/* 2. Payment Method */}
+      {/* 2. Order & Payment Method */}
       <div style={{ padding: '2rem', backgroundColor: 'var(--card-bg)', borderRadius: '12px', border: '1px solid var(--border-color)', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
         <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--gold)', marginBottom: '1.5rem', fontSize: '1.5rem' }}>
-          <CreditCard size={24} /> {language === 'ar' ? '٢.' : '2.'} {t.paymentTitle}
+          <Banknote size={24} /> {language === 'ar' ? '٢.' : '2.'} {language === 'ar' ? 'طريقة الاستلام والدفع' : 'Order & Payment Method'}
         </h3>
 
-        <div className="responsive-flex" style={{ marginBottom: '1rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          <label style={{ flex: 1, minWidth: '150px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', padding: '1.5rem', cursor: 'pointer', borderRadius: '8px', border: `2px solid ${formData.paymentMethod === 'cash' ? 'var(--gold)' : 'var(--border-color)'}`, backgroundColor: formData.paymentMethod === 'cash' ? 'rgba(255, 215, 0, 0.05)' : 'var(--bg-color)', transition: 'all 0.3s ease' }}>
-            <input type="radio" name="paymentMethod" value="cash" checked={formData.paymentMethod === 'cash'} onChange={handleChange} style={{ display: 'none' }} />
-            <Banknote size={32} color={formData.paymentMethod === 'cash' ? 'var(--gold)' : 'var(--text-secondary)'} />
-            <span style={{ fontWeight: 'bold', color: formData.paymentMethod === 'cash' ? 'var(--gold)' : 'var(--text-secondary)', textAlign: 'center' }}>{language === 'ar' ? 'الدفع نقداً' : 'Cash on Delivery'}</span>
+        <div className="responsive-flex" style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          {/* Option 1: Cash on Delivery */}
+          <label style={{
+            flex: 1,
+            minWidth: '220px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '0.7rem',
+            padding: '1.8rem 1.2rem',
+            cursor: 'pointer',
+            borderRadius: '12px',
+            border: `2px solid ${formData.paymentMethod === 'cash' ? 'var(--gold)' : 'var(--border-color)'}`,
+            backgroundColor: formData.paymentMethod === 'cash' ? 'rgba(212, 175, 55, 0.08)' : 'var(--bg-color)',
+            boxShadow: formData.paymentMethod === 'cash' ? '0 4px 15px rgba(212, 175, 55, 0.2)' : 'none',
+            transition: 'all 0.3s ease',
+            textAlign: 'center'
+          }}>
+            <input
+              type="radio"
+              name="paymentMethod"
+              value="cash"
+              checked={formData.paymentMethod === 'cash'}
+              onChange={handleChange}
+              style={{ display: 'none' }}
+            />
+            <div style={{ width: '52px', height: '52px', borderRadius: '50%', backgroundColor: formData.paymentMethod === 'cash' ? 'rgba(212, 175, 55, 0.2)' : 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Banknote size={32} color={formData.paymentMethod === 'cash' ? 'var(--gold)' : 'var(--text-secondary)'} />
+            </div>
+            <span style={{ fontWeight: 800, fontSize: '1.15rem', color: formData.paymentMethod === 'cash' ? 'var(--gold)' : 'var(--text-primary)' }}>
+              {language === 'ar' ? 'الدفع عند الاستلام' : 'Cash on Delivery'}
+            </span>
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+              {language === 'ar' ? 'توصيل لحد باب بيتك والدفع كاش' : 'Home delivery, pay cash at your door'}
+            </span>
           </label>
 
-          <label style={{ flex: 1, minWidth: '150px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', padding: '1.5rem', cursor: 'pointer', borderRadius: '8px', border: `2px solid ${formData.paymentMethod === 'wallets' ? '#e60000' : 'var(--border-color)'}`, backgroundColor: formData.paymentMethod === 'wallets' ? 'rgba(230, 0, 0, 0.05)' : 'var(--bg-color)', transition: 'all 0.3s ease' }}>
-            <input type="radio" name="paymentMethod" value="wallets" checked={formData.paymentMethod === 'wallets'} onChange={handleChange} style={{ display: 'none' }} />
-            <Smartphone size={32} color={formData.paymentMethod === 'wallets' ? '#e60000' : 'var(--text-secondary)'} />
-            <span style={{ fontWeight: 'bold', color: formData.paymentMethod === 'wallets' ? '#e60000' : 'var(--text-secondary)', textAlign: 'center' }}>{language === 'ar' ? 'محافظ إلكترونية' : 'E-Wallets'}</span>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textAlign: 'center' }}>Vodafone, Orange, Etisalat</span>
-          </label>
-
-          <label style={{ flex: 1, minWidth: '150px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', padding: '1.5rem', cursor: 'pointer', borderRadius: '8px', border: `2px solid ${formData.paymentMethod === 'instapay' ? '#662d91' : 'var(--border-color)'}`, backgroundColor: formData.paymentMethod === 'instapay' ? 'rgba(102, 45, 145, 0.05)' : 'var(--bg-color)', transition: 'all 0.3s ease' }}>
-            <input type="radio" name="paymentMethod" value="instapay" checked={formData.paymentMethod === 'instapay'} onChange={handleChange} style={{ display: 'none' }} />
-            <Smartphone size={32} color={formData.paymentMethod === 'instapay' ? '#662d91' : 'var(--text-secondary)'} />
-            <span style={{ fontWeight: 'bold', color: formData.paymentMethod === 'instapay' ? '#662d91' : 'var(--text-secondary)', textAlign: 'center' }}>{language === 'ar' ? 'إنستا باي' : 'InstaPay'}</span>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textAlign: 'center' }}>Instant transfer</span>
+          {/* Option 2: Pickup from Branch */}
+          <label style={{
+            flex: 1,
+            minWidth: '220px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '0.7rem',
+            padding: '1.8rem 1.2rem',
+            cursor: 'pointer',
+            borderRadius: '12px',
+            border: `2px solid ${formData.paymentMethod === 'pickup' ? 'var(--gold)' : 'var(--border-color)'}`,
+            backgroundColor: formData.paymentMethod === 'pickup' ? 'rgba(212, 175, 55, 0.08)' : 'var(--bg-color)',
+            boxShadow: formData.paymentMethod === 'pickup' ? '0 4px 15px rgba(212, 175, 55, 0.2)' : 'none',
+            transition: 'all 0.3s ease',
+            textAlign: 'center'
+          }}>
+            <input
+              type="radio"
+              name="paymentMethod"
+              value="pickup"
+              checked={formData.paymentMethod === 'pickup'}
+              onChange={handleChange}
+              style={{ display: 'none' }}
+            />
+            <div style={{ width: '52px', height: '52px', borderRadius: '50%', backgroundColor: formData.paymentMethod === 'pickup' ? 'rgba(212, 175, 55, 0.2)' : 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Store size={30} color={formData.paymentMethod === 'pickup' ? 'var(--gold)' : 'var(--text-secondary)'} />
+            </div>
+            <span style={{ fontWeight: 800, fontSize: '1.15rem', color: formData.paymentMethod === 'pickup' ? 'var(--gold)' : 'var(--text-primary)' }}>
+              {language === 'ar' ? 'الاستلام من الفرع' : 'Pickup from Branch'}
+            </span>
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+              {language === 'ar' ? 'تيك أواي واستلم طلبك طازة وسخن' : 'Takeaway - pick up hot & fresh'}
+            </span>
           </label>
         </div>
 
-        <div style={{ marginBottom: '2rem' }}>
-          <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', padding: '1.5rem', cursor: 'pointer', borderRadius: '8px', border: `2px solid ${formData.paymentMethod === 'cards' ? '#28a745' : 'var(--border-color)'}`, backgroundColor: formData.paymentMethod === 'cards' ? 'rgba(40, 167, 69, 0.05)' : 'var(--bg-color)', transition: 'all 0.3s ease', width: '100%', boxSizing: 'border-box' }}>
-            <input type="radio" name="paymentMethod" value="cards" checked={formData.paymentMethod === 'cards'} onChange={handleChange} style={{ display: 'none' }} />
-            <CreditCard size={32} color={formData.paymentMethod === 'cards' ? '#28a745' : 'var(--text-secondary)'} />
-            <span style={{ fontWeight: 'bold', color: formData.paymentMethod === 'cards' ? '#28a745' : 'var(--text-secondary)', textAlign: 'center' }}>{language === 'ar' ? 'بطاقة بنكية' : 'Credit Card'}</span>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textAlign: 'center' }}>Al Ahly, Misr, QNB, CIB</span>
-          </label>
-        </div>
-
+        {/* Note when Cash on Delivery is chosen */}
         {formData.paymentMethod === 'cash' && (
-          <div className="fade-in" style={{ padding: '1.5rem', backgroundColor: 'var(--bg-color)', borderRadius: '8px', border: '1px dashed var(--gold)', color: 'var(--text-secondary)', textAlign: 'center' }}>
-            {t.cashNote}
+          <div className="fade-in" style={{ padding: '1.2rem', backgroundColor: 'var(--bg-color)', borderRadius: '10px', border: '1px dashed var(--gold)', color: 'var(--text-secondary)', textAlign: 'center', fontSize: '1rem', lineHeight: '1.6' }}>
+            {language === 'ar' ? '🛵 ستدفع نقداً لمندوب التوصيل عند استلام الطلب.' : '🛵 You will pay cash to the courier upon order delivery.'}
           </div>
         )}
 
-
-
-        {(formData.paymentMethod === 'wallets' || formData.paymentMethod === 'instapay') && (
-          <div className="fade-in" style={{ marginTop: '1.5rem', padding: '2rem', backgroundColor: 'var(--bg-color)', borderRadius: '8px', border: `1px solid ${formData.paymentMethod === 'instapay' ? '#662d91' : '#e60000'}`, textAlign: 'center', width: '100%' }}>
-            <h4 style={{ marginBottom: '1rem', color: formData.paymentMethod === 'instapay' ? '#662d91' : '#e60000' }}>
-              {language === 'ar' ? 'بيانات الدفع' : 'Payment Details'}
+        {/* Branch Selection Box ("الشباك") when Pickup from Branch is chosen */}
+        {formData.paymentMethod === 'pickup' && (
+          <div className="scale-in" style={{
+            padding: '1.8rem',
+            backgroundColor: 'var(--bg-color)',
+            borderRadius: '12px',
+            border: '1.5px solid var(--gold)',
+            boxShadow: '0 6px 20px rgba(0,0,0,0.06)'
+          }}>
+            <h4 style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.6rem',
+              color: 'var(--gold)',
+              fontSize: '1.15rem',
+              fontWeight: 800,
+              marginBottom: '1rem'
+            }}>
+              <MapPin size={22} />
+              {language === 'ar' ? 'اختر الفرع للاستلام منه:' : 'Select pickup branch:'}
             </h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '400px', margin: '0 auto' }}>
-              <input 
-                type="text" 
-                name="walletOrInstaPayNumber" 
-                onChange={handleChange} 
-                value={formData.walletOrInstaPayNumber || ''} 
-                placeholder={formData.paymentMethod === 'wallets' ? (language === 'ar' ? 'رقم المحفظة الإلكترونية' : 'E-Wallet Number') : (language === 'ar' ? 'عنوان الدفع (IPA)' : 'InstaPay Address (IPA)')} 
-                style={{ padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', width: '100%', boxSizing: 'border-box' }} 
-                required
-              />
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
+              {BRANCHES.map((b) => {
+                const isSelected = (formData.selectedBranch || 'branch-1') === b.id;
+                return (
+                  <label
+                    key={b.id}
+                    onClick={() => setFormData(prev => ({ ...prev, selectedBranch: b.id }))}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '1rem',
+                      padding: '1.2rem',
+                      borderRadius: '10px',
+                      cursor: 'pointer',
+                      border: `2px solid ${isSelected ? 'var(--gold)' : 'var(--border-color)'}`,
+                      backgroundColor: isSelected ? 'rgba(212, 175, 55, 0.12)' : 'var(--card-bg)',
+                      transition: 'all 0.25s ease'
+                    }}
+                  >
+                    <input
+                      type="radio"
+                      name="selectedBranch"
+                      value={b.id}
+                      checked={isSelected}
+                      onChange={() => {}}
+                      style={{ accentColor: 'var(--gold)', width: '20px', height: '20px', cursor: 'pointer' }}
+                    />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 800, fontSize: '1.05rem', color: isSelected ? 'var(--gold)' : 'var(--text-primary)' }}>
+                        {language === 'ar' ? b.name_ar : b.name_en}
+                      </div>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '3px' }}>
+                        {language === 'ar' ? `الخط الساخن: ${b.phone}` : `Hotline: ${b.phone}`}
+                      </div>
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
+
+            <div style={{ marginTop: '1.2rem', fontSize: '0.9rem', color: 'var(--text-secondary)', textAlign: 'center', lineHeight: '1.5' }}>
+              {language === 'ar'
+                ? '🏪 سيتم تجهيز طلبك طازة لتستلمه فور وصولك للفرع بدون انتظار، والدفع عند الاستلام.'
+                : '🏪 Your order will be prepared fresh for pickup at the selected branch. Pay on pickup.'}
             </div>
           </div>
         )}
@@ -617,7 +691,8 @@ function CheckoutInternal({ isModal = false, onClose }) {
     building: '',
     floor: '',
     notes: '',
-    paymentMethod: 'cash'
+    paymentMethod: 'cash',
+    selectedBranch: 'branch-1'
   });
   const [status, setStatus] = useState({ type: '', message: '' });
 

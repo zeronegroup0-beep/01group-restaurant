@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Lock, XCircle, AlertCircle } from 'lucide-react';
+import { Lock, XCircle, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 const API = import.meta.env.VITE_API_URL || '';
@@ -9,6 +9,7 @@ export default function ManagerAuthModal({ isOpen, onClose, onSuccess, actionLab
   const isRTL = language === 'ar';
   
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -123,20 +124,54 @@ export default function ManagerAuthModal({ isOpen, onClose, onSuccess, actionLab
             <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
               {isRTL ? 'كلمة السر' : 'Password'}
             </label>
-            <input 
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              autoFocus
-              style={{
-                width: '100%', padding: '0.8rem 1rem', borderRadius: '8px',
-                backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-color)',
-                color: '#fff', fontSize: '1rem', outline: 'none'
-              }}
-              onFocus={e => e.currentTarget.style.borderColor = 'var(--gold)'}
-              onBlur={e => e.currentTarget.style.borderColor = 'var(--border-color)'}
-            />
+            <div style={{ position: 'relative', width: '100%' }}>
+              <input 
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                autoFocus
+                style={{
+                  width: '100%',
+                  padding: isRTL ? '0.8rem 1rem 0.8rem 3rem' : '0.8rem 3rem 0.8rem 1rem',
+                  borderRadius: '8px',
+                  backgroundColor: '#ffffff',
+                  border: '1.5px solid var(--border-color)',
+                  color: '#000000',
+                  WebkitTextFillColor: '#000000',
+                  fontSize: '1.05rem',
+                  fontWeight: '600',
+                  letterSpacing: showPassword ? 'normal' : '3px',
+                  outline: 'none'
+                }}
+                onFocus={e => e.currentTarget.style.borderColor = 'var(--gold)'}
+                onBlur={e => e.currentTarget.style.borderColor = 'var(--border-color)'}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(prev => !prev)}
+                title={showPassword ? (isRTL ? 'إخفاء' : 'Hide') : (isRTL ? 'إظهار' : 'Show')}
+                style={{
+                  position: 'absolute',
+                  [isRTL ? 'left' : 'right']: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#555555',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '6px',
+                  borderRadius: '6px'
+                }}
+                onMouseEnter={e => { e.currentTarget.style.color = '#000000'; }}
+                onMouseLeave={e => { e.currentTarget.style.color = '#555555'; }}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
 
           <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>

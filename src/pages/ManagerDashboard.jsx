@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { Lock, TrendingUp, XCircle, DollarSign, Users, LogOut, Activity, RefreshCw, Filter, ShoppingBag, CheckCircle, Printer } from 'lucide-react';
+import { Lock, TrendingUp, XCircle, DollarSign, Users, LogOut, Activity, RefreshCw, Filter, ShoppingBag, CheckCircle, Printer, Eye, EyeOff } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceArea } from 'recharts';
 import AdminCategories from '../components/AdminCategories';
 import AdminProducts from '../components/AdminProducts';
@@ -9,7 +9,9 @@ import ReceiptPreviewModal from '../components/ReceiptPreviewModal';
 export default function ManagerDashboard() {
   const { language } = useLanguage();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [dashboardData, setDashboardData] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -169,7 +171,7 @@ export default function ManagerDashboard() {
       const response = await fetch(`${API}/api/manager/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
+        body: JSON.stringify({ username, password })
       });
       const data = await response.json();
       if (data.success) {
@@ -178,10 +180,10 @@ export default function ManagerDashboard() {
         setError('');
         fetchData();
       } else {
-        setError(data.error || (language === 'ar' ? 'كلمة المرور غير صحيحة' : 'Incorrect password'));
+        setError(data.error || (language === 'ar' ? 'اسم المستخدم أو كلمة المرور غير صحيحة' : 'Incorrect username or password'));
       }
     } catch (err) {
-      setError('Connection error');
+      setError(language === 'ar' ? 'حدث خطأ في الاتصال بالسيرفر' : 'Connection error');
     }
   };
 
@@ -408,27 +410,89 @@ export default function ManagerDashboard() {
             {language === 'ar' ? 'بوابة الإدارة' : 'Management Portal'}
           </h2>
           <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>
-            {language === 'ar' ? 'يرجى إدخال كلمة المرور للوصول للوحة المبيعات' : 'Please enter password to access sales dashboard'}
+            {language === 'ar' ? 'يرجى إدخال اسم المستخدم وكلمة المرور' : 'Please enter username and password'}
           </p>
           
-          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder={language === 'ar' ? 'كلمة المرور' : 'Password'}
-              style={{
-                width: '100%', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)',
-                backgroundColor: 'var(--bg-color)', color: '#fff', fontSize: '1rem', textAlign: language === 'ar' ? 'right' : 'left'
-              }}
-              dir={language === 'ar' ? 'rtl' : 'ltr'}
-            />
-            {error && <div style={{ color: 'var(--brand-red)', fontSize: '0.9rem' }}>{error}</div>}
+          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }} dir={language === 'ar' ? 'rtl' : 'ltr'}>
+            <div style={{ position: 'relative', width: '100%' }}>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder={language === 'ar' ? 'اسم المستخدم (Username)' : 'Username'}
+                required
+                style={{
+                  width: '100%',
+                  padding: '1rem 1.2rem',
+                  borderRadius: '8px',
+                  border: '1.5px solid var(--border-color)',
+                  backgroundColor: '#ffffff',
+                  color: '#000000',
+                  WebkitTextFillColor: '#000000',
+                  fontSize: '1.05rem',
+                  fontWeight: '600',
+                  textAlign: language === 'ar' ? 'right' : 'left',
+                  outline: 'none',
+                  boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.06)'
+                }}
+              />
+            </div>
+
+            <div style={{ position: 'relative', width: '100%' }}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder={language === 'ar' ? 'كلمة المرور (Password)' : 'Password'}
+                required
+                style={{
+                  width: '100%',
+                  padding: language === 'ar' ? '1rem 1.2rem 1rem 3.2rem' : '1rem 3.2rem 1rem 1.2rem',
+                  borderRadius: '8px',
+                  border: '1.5px solid var(--border-color)',
+                  backgroundColor: '#ffffff',
+                  color: '#000000',
+                  WebkitTextFillColor: '#000000',
+                  fontSize: '1.05rem',
+                  fontWeight: '600',
+                  letterSpacing: showPassword ? 'normal' : '3px',
+                  textAlign: language === 'ar' ? 'right' : 'left',
+                  outline: 'none',
+                  boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.06)'
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(prev => !prev)}
+                title={showPassword ? (language === 'ar' ? 'إخفاء كلمة المرور' : 'Hide password') : (language === 'ar' ? 'إظهار كلمة المرور' : 'Show password')}
+                style={{
+                  position: 'absolute',
+                  [language === 'ar' ? 'left' : 'right']: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#555555',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '6px',
+                  borderRadius: '6px',
+                  transition: 'color 0.2s, background-color 0.2s'
+                }}
+                onMouseEnter={e => { e.currentTarget.style.color = '#000000'; e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.06)'; }}
+                onMouseLeave={e => { e.currentTarget.style.color = '#555555'; e.currentTarget.style.backgroundColor = 'transparent'; }}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+            {error && <div style={{ color: 'var(--brand-red)', fontSize: '0.9rem', fontWeight: 'bold' }}>{error}</div>}
             
             <button
               type="submit"
               className="order-btn"
-              style={{ width: '100%', marginTop: '0.5rem' }}
+              style={{ width: '100%', marginTop: '0.5rem', fontWeight: 'bold' }}
             >
               {language === 'ar' ? 'تسجيل الدخول' : 'Login'}
             </button>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Lock, ShoppingBag, Calendar, MessageSquare, RefreshCw, Filter, CheckCircle, AlertCircle, Trash2, Archive, Clock, DollarSign, TrendingUp, XCircle, Activity, Edit2, Plus, Eye, X, Printer } from 'lucide-react';
+import { Lock, ShoppingBag, Calendar, MessageSquare, RefreshCw, Filter, CheckCircle, AlertCircle, Trash2, Archive, Clock, DollarSign, TrendingUp, XCircle, Activity, Edit2, Plus, Eye, EyeOff, X, Printer } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import ReceiptPreviewModal from '../components/ReceiptPreviewModal';
 
@@ -119,7 +119,9 @@ function AdminContent() {
   const isRTL = language === 'ar';
   
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [activeTab, setActiveTab] = useState('orders');
   const [data, setData] = useState({ orders: [], reservations: [], contacts: [], categories: [], products: [] });
   const [loading, setLoading] = useState(false);
@@ -193,7 +195,7 @@ function AdminContent() {
       const response = await fetch(`${API}/api/admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
+        body: JSON.stringify({ username, password })
       });
       const resData = await response.json();
       if (response.ok && resData.success) {
@@ -201,10 +203,10 @@ function AdminContent() {
         setIsAuthenticated(true);
         fetchData();
       } else {
-        setError(resData.error || 'Invalid admin password');
+        setError(resData.error || (isRTL ? 'اسم المستخدم أو كلمة المرور غير صحيحة' : 'Invalid admin username or password'));
       }
     } catch (err) {
-      setError('Failed to connect to backend server');
+      setError(isRTL ? 'فشل الاتصال بالسيرفر' : 'Failed to connect to backend server');
     }
   };
 
@@ -482,17 +484,82 @@ function AdminContent() {
             </div>
           )}
 
-          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <input
-              type="password"
-              placeholder="Enter Admin Password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-              style={{ padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: '#fff', fontSize: '1rem' }}
-            />
-            <button type="submit" className="btn-primary" style={{ padding: '1rem', borderRadius: '8px' }}>
-              Access Dashboard
+          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }} dir={isRTL ? 'rtl' : 'ltr'}>
+            <div style={{ position: 'relative', width: '100%' }}>
+              <input
+                type="text"
+                placeholder={isRTL ? 'اسم المستخدم (Username)' : 'Username'}
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                required
+                style={{
+                  width: '100%',
+                  padding: '1rem 1.2rem',
+                  borderRadius: '8px',
+                  border: '1.5px solid var(--border-color)',
+                  backgroundColor: '#ffffff',
+                  color: '#000000',
+                  WebkitTextFillColor: '#000000',
+                  fontSize: '1.05rem',
+                  fontWeight: '600',
+                  textAlign: isRTL ? 'right' : 'left',
+                  outline: 'none',
+                  boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.06)'
+                }}
+              />
+            </div>
+
+            <div style={{ position: 'relative', width: '100%' }}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                placeholder={isRTL ? 'كلمة المرور (Password)' : 'Password'}
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+                style={{
+                  width: '100%',
+                  padding: isRTL ? '1rem 1.2rem 1rem 3.2rem' : '1rem 3.2rem 1rem 1.2rem',
+                  borderRadius: '8px',
+                  border: '1.5px solid var(--border-color)',
+                  backgroundColor: '#ffffff',
+                  color: '#000000',
+                  WebkitTextFillColor: '#000000',
+                  fontSize: '1.05rem',
+                  fontWeight: '600',
+                  letterSpacing: showPassword ? 'normal' : '3px',
+                  textAlign: isRTL ? 'right' : 'left',
+                  outline: 'none',
+                  boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.06)'
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(prev => !prev)}
+                title={showPassword ? (isRTL ? 'إخفاء كلمة المرور' : 'Hide password') : (isRTL ? 'إظهار كلمة المرور' : 'Show password')}
+                style={{
+                  position: 'absolute',
+                  [isRTL ? 'left' : 'right']: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#555555',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '6px',
+                  borderRadius: '6px',
+                  transition: 'color 0.2s, background-color 0.2s'
+                }}
+                onMouseEnter={e => { e.currentTarget.style.color = '#000000'; e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.06)'; }}
+                onMouseLeave={e => { e.currentTarget.style.color = '#555555'; e.currentTarget.style.backgroundColor = 'transparent'; }}
+              >
+                {showPassword ? <EyeOff size={22} /> : <Eye size={22} />}
+              </button>
+            </div>
+            <button type="submit" className="btn-primary" style={{ padding: '1rem', borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem' }}>
+              {isRTL ? 'تسجيل الدخول' : 'Access Dashboard'}
             </button>
           </form>
         </div>

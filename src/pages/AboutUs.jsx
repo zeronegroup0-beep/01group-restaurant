@@ -12,7 +12,7 @@ export default function AboutUs() {
             {language === 'ar' ? 'حكايتنا وسر صنعتنا' : 'Our Story'}
           </h1>
           <p className="fade-in stagger-1" style={{ fontSize: 'clamp(1rem, 3vw, 1.6rem)', color: '#fff', fontWeight: 'bold', maxWidth: '800px', margin: '0 auto', lineHeight: '1.8' }}>
-            {language === 'ar' ? 'عشر سنين من العشق والشغف بلقمة دمشقية أصيلة على أرض مصر.' : 'A 10-year journey of passion for authentic Syrian cuisine.'}
+            {language === 'ar' ? 'عشر سنين من العشق والشغف بلقمة سورية أصيلة على أرض مصر.' : 'A 10-year journey of passion for authentic Syrian cuisine.'}
           </p>
         </div>
       </header>
@@ -22,18 +22,18 @@ export default function AboutUs() {
 
           <div style={{ textAlign: 'center' }}>
             <h2 style={{ fontSize: 'clamp(1.8rem, 5vw, 3rem)', marginBottom: '2rem', color: 'var(--gold)' }}>
-              {language === 'ar' ? 'أصل الشاورما الدمشقية في قلب مصر' : '#1 Choice in Egypt'}
+              {language === 'ar' ? 'أصل الشاورما السورية في قلب مصر' : 'The Origin of Syrian Shawarma in the Heart of Egypt'}
             </h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', color: 'var(--text-secondary)', fontSize: '1.2rem', lineHeight: '2' }}>
               {language === 'ar' ? (
                 <>
-                  <p>بدأت حكاية 01Group من أكتر من ١٠ سنين، بحلم ورسالة واضحة: ننقل ريحة حارات دمشق العتيقة وسر تتبيلتها الأصلية لقلب مصر. ماكناش بنعمل مجرد مطعم، كنا عايزين نفتح بيت شامي دافي لكل عشاق الأكل الأصيل.</p>
-                  <p>الشاورما عندنا مش مجرد سندوتش، دي صنعة وسر متوارث؛ سيخ شاورما بيستوي على الهادي، بتتبيلة بهارات شامية خاصة، مع عيش صاج سخن طالع من الفرن وتومية بيتي تظبط الدماغ. ومعانا أمهر شيفات دمشق اللي بيطبخوا بحب وكرم، عشان كل لقمة تاكلها تحس فيها ببركة وروح الشام.</p>
+                  <p>بدأت حكاية 01Group من أكتر من ١٠ سنين، بحلم ورسالة واضحة: ننقل سر تتبيلة الشاورما السورية الأصلية لقلب مصر. ماكناش بنعمل مجرد مطعم، كنا عايزين نفتح بيت شامي دافي لكل عشاق الأكل الأصيل.</p>
+                  <p>الشاورما عندنا مش مجرد سندوتش، دي صنعة وسر متوارث؛ سيخ شاورما بيستوي على الهادي، بتتبيلة بهارات شامية خاصة، مع عيش صاج سخن طالع من الفرن وتومية بيتي تظبط الدماغ. ومعانا أمهر الشيفات السوريين اللي بيطبخوا بحب وكرم، عشان كل لقمة تاكلها تحس فيها ببركة وروح الشام.</p>
                 </>
               ) : (
                 <>
                   <p>01Group Syrian Restaurant was founded over 10 years ago to bring a paradigm shift to Levantine cuisine in Egypt. We made it our mission to deliver authentic Syrian taste to every food lover.</p>
-                  <p>We don't just serve food; we offer a piece of Damascus. From slow-roasted shawarma on the spit to rich fatteh plates and fresh pastries, every dish tells a story of our commitment to authentic flavors. Our team of skilled Syrian chefs ensures an unforgettable experience.</p>
+                  <p>We don't just serve food; we offer an authentic Syrian experience. From slow-roasted shawarma on the spit to rich fatteh plates and fresh pastries, every dish tells a story of our commitment to authentic flavors. Our team of skilled Syrian chefs ensures an unforgettable experience.</p>
                 </>
               )}
             </div>

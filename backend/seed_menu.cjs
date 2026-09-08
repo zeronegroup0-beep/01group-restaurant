@@ -18,7 +18,7 @@ const CATEGORIES = [
     name_ar: 'شاورما وبوكسات',
     img: 'https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=800&auto=format&fit=crop',
     desc_en: 'Authentic Damascus-style shawarma wraps and rice boxes',
-    desc_ar: 'شاورما دمشقية أصيلة وبوكسات بالأرز',
+    desc_ar: 'شاورما سورية أصيلة وبوكسات بالأرز',
   },
   {
     key: 'sandwiches',
@@ -259,9 +259,11 @@ const PRODUCTS = [
     sauces: [], ingredients: [], is_popular: 1, offer_type: 'none',
   },
   {
-    category_key: 'sauces', key: 'sauce_tahini',
-    name_en: 'Damascus Tahini', name_ar: 'طحينة دمشقية أصلية',
-    desc_en: 'Rich sesame tahini sauce', desc_ar: 'صوص الطحينة الغني بالسمسم على الطريقة الدمشقية',
+    category_key: 'sauces',    key: 'sauce_tahini',
+    name_en: 'Syrian Tahini',
+    name_ar: 'طحينة سورية أصلية',
+    desc_en: 'Rich sesame tahini sauce',
+    desc_ar: 'صوص الطحينة الغني بالسمسم على الطريقة السورية',
     price: 15, weight: '',
     img: 'https://images.unsplash.com/photo-1596662951482-0c4ba74a6df6?w=600&auto=format&fit=crop',
     sauces: [], ingredients: [], is_popular: 0, offer_type: 'none',

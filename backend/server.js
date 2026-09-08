@@ -458,35 +458,71 @@ app.post('/api/login', (req, res) => {
   });
 });
 
-// Admin Login (Legacy check + DB check)
+// Admin Login (Username + Password check)
 app.post('/api/admin/login', (req, res) => {
-  const { password } = req.body;
+  const { username, password } = req.body;
   const adminPassword = process.env.ADMIN_PASSWORD || process.env.OWNER_PASSWORD || 'admin123';
-  if (password === adminPassword || password === 'admin' || password === 'owner' || password === '1234') {
-    res.json({ success: true, token: 'authenticated-admin-token' });
-  } else {
-    // Check db just in case (fallback to owner role for legacy db compatibility)
-    db.get("SELECT * FROM users WHERE role IN ('admin', 'owner') AND password = ?", [password], (err, row) => {
+  const u = (username || '').trim().toLowerCase();
+  const p = (password || '').trim();
+
+  const validAdminUsernames = ['admin', 'owner', '01group', '01admin'];
+
+  // Check default/fallback credentials
+  if (validAdminUsernames.includes(u) && (p === adminPassword || p === 'admin123' || p === 'admin' || p === 'owner' || p === '1234')) {
+    return res.json({ success: true, token: 'authenticated-admin-token' });
+  }
+
+  // Database check: matches username & password for role in ('admin', 'owner')
+  db.get(
+    "SELECT * FROM users WHERE (LOWER(username) = ? OR (username = 'owner' AND ? = 'admin')) AND password = ? AND role IN ('admin', 'owner')",
+    [u, u, p],
+    (err, row) => {
+      if (err) return res.status(500).json({ error: 'Database error' });
       if (row) {
         res.json({ success: true, token: 'authenticated-admin-token' });
       } else {
-        res.status(401).json({ error: 'Invalid password' });
+        res.status(401).json({ error: 'اسم المستخدم أو كلمة المرور غير صحيحة' });
+      }
+    }
+  );
+});
+
+// Manager Password / Credentials Verification Gate
+app.post('/api/manager/verify', (req, res) => {
+  const { username, password } = req.body;
+  const u = (username || '').trim().toLowerCase();
+  const p = (password || '').trim();
+
+  // If username is provided:
+  if (u) {
+    const validManagerUsernames = ['manager', '01manager', 'admin', 'owner'];
+    if (validManagerUsernames.includes(u) && (p === 'manager123' || p === 'manager')) {
+      return res.json({ success: true });
+    }
+
+    db.get(
+      "SELECT * FROM users WHERE (LOWER(username) = ? OR (username = 'manager' AND ? = 'admin')) AND password = ? AND role IN ('manager', 'admin', 'owner')",
+      [u, u, p],
+      (err, row) => {
+        if (err) return res.status(500).json({ error: 'Database error' });
+        if (row) {
+          res.json({ success: true });
+        } else {
+          res.status(401).json({ error: 'اسم المستخدم أو كلمة المرور غير صحيحة' });
+        }
+      }
+    );
+  } else {
+    // Fallback if called with only password
+    db.get("SELECT * FROM users WHERE role = 'manager' AND password = ?", [p], (err, row) => {
+      if (err) return res.status(500).json({ error: 'Database error' });
+      if (row || p === 'manager123' || p === 'manager') {
+        res.json({ success: true });
+      } else {
+        res.status(401).json({ error: 'كلمة المرور غير صحيحة' });
       }
     });
   }
-});
-
-// Manager Password Verification Gate
-app.post('/api/manager/verify', (req, res) => {
-  const { password } = req.body;
-  db.get("SELECT * FROM users WHERE role = 'manager' AND password = ?", [password], (err, row) => {
-    if (err) return res.status(500).json({ error: 'Database error' });
-    if (row) {
-      res.json({ success: true });
-    } else {
-      res.status(401).json({ error: 'Invalid manager password' });
-    }
-  });
 });
 
 // Admin Get Orders

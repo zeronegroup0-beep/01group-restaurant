@@ -61,11 +61,11 @@ export default function Home() {
             {t('hero.subtitle')}
           </p>
           <div className="hero-buttons">
-            <Link to="/reservations" className="btn-primary hero-btn">
-              {t('hero.book')}
-            </Link>
-            <Link to="/menu" className="btn-outline hero-btn hero-btn-outline">
+            <Link to="/menu" className="btn-primary hero-btn">
               {t('hero.menu')}
+            </Link>
+            <Link to="/reservations" className="btn-outline hero-btn hero-btn-outline">
+              {t('hero.book')}
             </Link>
           </div>
         </div>

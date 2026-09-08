@@ -50,6 +50,27 @@ function GlobalEventHandlers() {
   return null;
 }
 
+// Route Guard for Secret Staff Portals
+function ProtectedStaffRoute({ children, role }) {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const secretKey = searchParams.get('secret');
+
+  if (secretKey === '01' || secretKey === 'admin' || secretKey === 'manager' || secretKey === 'staff') {
+    sessionStorage.setItem('staff_gateway_authorized', 'true');
+  }
+
+  const isStaffAuthorized = sessionStorage.getItem('staff_gateway_authorized') === 'true';
+  const isAdmin = sessionStorage.getItem('admin_session') === 'true';
+  const isManager = sessionStorage.getItem('manager_session') === 'true';
+
+  if (isStaffAuthorized || (role === 'admin' && isAdmin) || (role === 'manager' && isManager)) {
+    return children;
+  }
+
+  return <NotFoundOrRedirect />;
+}
+
 function NotFoundOrRedirect() {
   const isManager = sessionStorage.getItem('manager_session') === 'true';
   const isAdmin = sessionStorage.getItem('admin_session') === 'true';
@@ -91,8 +112,8 @@ function App() {
               <Route path="/chef" element={<Chef />} />
               <Route path="/events" element={<Events />} />
               <Route path="/testimonials" element={<Testimonials />} />
-              <Route path="/admin-dashboard" element={<AdminDashboard />} />
-              <Route path="/manager-dashboard" element={<ManagerDashboard />} />
+              <Route path="/admin-dashboard" element={<ProtectedStaffRoute role="admin"><AdminDashboard /></ProtectedStaffRoute>} />
+              <Route path="/manager-dashboard" element={<ProtectedStaffRoute role="manager"><ManagerDashboard /></ProtectedStaffRoute>} />
               <Route path="/checkout/payment" element={<CheckoutPayment />} />
               <Route path="/checkout/callback" element={<PaymobCallback />} />
               <Route path="/track" element={<OrderTracking />} />

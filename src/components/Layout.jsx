@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Globe, Menu, X } from 'lucide-react';
 import { useCart } from '../context/CartContext';
@@ -7,7 +7,8 @@ import LogoImg from '../../Images/2.png';
 import Checkout from '../pages/Checkout';
 import FloatingSocialMenu from './FloatingSocialMenu';
 import SocialMediaFooter from './SocialMediaFooter';
-const Navbar = () => {
+import StaffAccessModal from './StaffAccessModal';
+const Navbar = ({ onOpenStaffModal }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const path = location.pathname;
@@ -53,12 +54,55 @@ const Navbar = () => {
     navigate(targetPath);
   };
 
+  const logoTapCountRef = useRef(0);
+  const logoTapTimerRef = useRef(null);
+  const longPressTimerRef = useRef(null);
+
+  const handleLogoClick = (e) => {
+    logoTapCountRef.current += 1;
+    if (logoTapTimerRef.current) clearTimeout(logoTapTimerRef.current);
+
+    if (logoTapCountRef.current >= 5) {
+      e.preventDefault();
+      logoTapCountRef.current = 0;
+      if (onOpenStaffModal) onOpenStaffModal();
+      return;
+    }
+
+    logoTapTimerRef.current = setTimeout(() => {
+      logoTapCountRef.current = 0;
+    }, 2500);
+
+    if (logoTapCountRef.current === 1) {
+      handleResetNavigation(e, '/');
+    } else {
+      e.preventDefault();
+    }
+  };
+
+  const handleTouchStart = () => {
+    longPressTimerRef.current = setTimeout(() => {
+      if (onOpenStaffModal) onOpenStaffModal();
+    }, 2500);
+  };
+
+  const handleTouchEnd = () => {
+    if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+  };
+
   return (
     <>
       <nav className="navbar">
       <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         {/* Logo */}
-        <a href="/" onClick={(e) => handleResetNavigation(e, '/')} className="navbar-brand" style={{ display: 'flex', alignItems: 'center', gap: '12px', zIndex: 1100, cursor: 'pointer' }}>
+        <a
+          href="/"
+          onClick={handleLogoClick}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          className="navbar-brand"
+          style={{ display: 'flex', alignItems: 'center', gap: '12px', zIndex: 1100, cursor: 'pointer', userSelect: 'none' }}
+        >
           <img src={LogoImg} alt={language === 'ar' ? 'شعار 01Group' : '01Group Logo'} style={{ height: 'clamp(32px, 8vw, 44px)', width: 'auto', objectFit: 'contain', filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.5))' }} />
         </a>
 
@@ -234,20 +278,12 @@ const Footer = () => {
         </div>
         <SocialMediaFooter customLogo={LogoImg} />
         <p
-          onClick={() => {
-            window.__adminClicks = (window.__adminClicks || 0) + 1;
-            if (window.__adminClicks >= 3) {
-              window.__adminClicks = 0;
-              navigate('/admin-dashboard');
-            }
-          }}
           style={{
             marginTop: '2rem',
             paddingTop: '1.5rem',
             borderTop: '1px solid rgba(255, 255, 255, 0.08)',
             color: 'var(--text-secondary)',
             fontSize: '0.85rem',
-            cursor: 'pointer',
             userSelect: 'none',
             display: 'flex',
             alignItems: 'center',
@@ -258,7 +294,6 @@ const Footer = () => {
             textAlign: 'center',
             letterSpacing: '0.3px'
           }}
-          title=""
         >
           <span>Developed by <strong style={{ color: 'var(--gold)', fontWeight: 600 }}>01Group</strong></span>
           <span style={{ opacity: 0.5 }}>|</span>
@@ -373,7 +408,28 @@ const FloatingCart = () => {
 export default function Layout({ children }) {
   const { isCheckoutOpen, closeCheckout } = useCart();
   const { language } = useLanguage();
+  const navigate = useNavigate();
   const [showToast, setShowToast] = useState(false);
+  const [isStaffModalOpen, setIsStaffModalOpen] = useState(false);
+
+  // Secret staff keyboard shortcuts: Ctrl + Shift + A (Admin), Ctrl + Shift + M (Manager)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+        e.preventDefault();
+        sessionStorage.setItem('staff_gateway_authorized', 'true');
+        navigate('/admin-dashboard');
+      }
+      if (e.ctrlKey && e.shiftKey && (e.key === 'M' || e.key === 'm')) {
+        e.preventDefault();
+        sessionStorage.setItem('staff_gateway_authorized', 'true');
+        navigate('/manager-dashboard');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [navigate]);
 
   useEffect(() => {
     const handleAdd = () => {
@@ -386,7 +442,7 @@ export default function Layout({ children }) {
 
   return (
     <>
-      <Navbar />
+      <Navbar onOpenStaffModal={() => setIsStaffModalOpen(true)} />
       <main>{children}</main>
       <Footer />
       <FloatingCart />
@@ -420,6 +476,12 @@ export default function Layout({ children }) {
       {isCheckoutOpen && (
         <Checkout isModal={true} onClose={closeCheckout} />
       )}
+
+      {/* Secret Staff Access Modal */}
+      <StaffAccessModal
+        isOpen={isStaffModalOpen}
+        onClose={() => setIsStaffModalOpen(false)}
+      />
     </>
   );
 }
