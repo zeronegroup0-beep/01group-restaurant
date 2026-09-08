@@ -83,7 +83,7 @@ const dbGet = (query, params = []) => new Promise((resolve, reject) => {
 app.get('/', (c) => {
   return c.json({
     status: 'success',
-    message: 'Demashqi Restaurant Backend is Active and Running on Cloudflare 🚀',
+    message: '01Group Backend is Active and Running on Cloudflare 🚀',
     timestamp: new Date()
   });
 });
@@ -91,7 +91,7 @@ app.get('/', (c) => {
 app.get('/api/health', (c) => {
   return c.json({
     status: 'success',
-    message: 'Demashqi Restaurant Backend is Active and Running on Cloudflare 🚀',
+    message: '01Group Backend is Active and Running on Cloudflare 🚀',
     timestamp: new Date()
   });
 });
@@ -336,7 +336,7 @@ app.post('/api/payment/paymob', async (c) => {
     
     // Key
     const billingData = {
-      apartment: "NA", email: "customer@demashqi.com", floor: "NA", first_name: (name||'C').split(' ')[0], street: address || "NA", building: "NA", phone_number: phone || "+2010",
+      apartment: "NA", email: "customer@01group.com", floor: "NA", first_name: (name||'C').split(' ')[0], street: address || "NA", building: "NA", phone_number: phone || "+2010",
       shipping_method: "NA", postal_code: "NA", city: "NA", country: "EG", last_name: "Customer", state: "NA"
     };
     

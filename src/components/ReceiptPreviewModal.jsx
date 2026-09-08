@@ -18,7 +18,7 @@ export const ReceiptTemplate = ({ order, isPreview = false }) => {
     return (
       <div id="receipt-container" className={isPreview ? "preview-mode" : ""} style={{ backgroundColor: '#ffffff', color: '#000000', padding: '15px' }}>
         <div style={{ textAlign: 'center', marginBottom: '10px' }}>
-          <h2 style={{ margin: 0, fontSize: '18px' }}>مطعم الدمشقي</h2>
+          <h2 style={{ margin: 0, fontSize: '18px' }}>01Group</h2>
           <p style={{ margin: 0 }}>رقم الطلب: #{order?.orderId || order?.id || 'N/A'}</p>
           <p style={{ margin: 0 }}>التاريخ: {order?.date || new Date(order?.created_at || Date.now()).toLocaleString()}</p>
         </div>
@@ -90,7 +90,7 @@ const ReceiptPreviewModal = ({ isOpen, onClose, order, onPrint, autoPrintEnabled
 
     const receiptHTML = `
       <div style="width: 80mm; background-color: #ffffff; color: #000000; padding: 10mm; font-family: Arial, sans-serif; direction: rtl;">
-        <div style="text-align: center; font-weight: bold; font-size: 16px; margin-bottom: 5px; color: #000;">مطعم الدمشقي</div>
+        <div style="text-align: center; font-weight: bold; font-size: 16px; margin-bottom: 5px; color: #000;">01Group</div>
         <div style="text-align: center; color: #000; font-size: 12px; margin-bottom: 10px;">رقم الطلب: #${order?.orderId || order?.id || '1'}</div>
         <div style="border-bottom: 1px dashed #000; margin: 10px 0;"></div>
         <div style="color: #000; font-size: 12px; text-align: right;">الاسم: ${order?.name || order?.customerName || order?.customer || 'عميل'}</div>

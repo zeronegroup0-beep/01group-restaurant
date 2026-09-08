@@ -6,11 +6,11 @@ import { useCart } from '../context/CartContext';
 import ProductModal from '../components/ProductModal';
 
 // Import authentic images
-const HeroImage = '/Images/hero_shawarma.png';
-const StoryImage = '/Images/hero_shawarma.png'; // Using hero as story placeholder
-const Dish1Image = '/Images/hero_shawarma.png'; // Shawarma
-const Dish2Image = '/Images/fatteh_syrian.png'; // Fatteh
-const Dish3Image = '/Images/pizza_crispy.png'; // Crispy Chicken Pizza
+const HeroImage = import.meta.env.BASE_URL + 'Images/hero_shawarma.png';
+const StoryImage = import.meta.env.BASE_URL + 'Images/hero_shawarma.png'; // Using hero as story placeholder
+const Dish1Image = import.meta.env.BASE_URL + 'Images/hero_shawarma.png'; // Shawarma
+const Dish2Image = import.meta.env.BASE_URL + 'Images/fatteh_syrian.png'; // Fatteh
+const Dish3Image = import.meta.env.BASE_URL + 'Images/pizza_crispy.png'; // Crispy Chicken Pizza
 import OffersSlider from '../components/OffersSlider';
 
 export default function Home() {
@@ -80,10 +80,10 @@ export default function Home() {
             <div style={{ textAlign: 'center', marginBottom: 'clamp(1rem, 2vw, 2rem)' }}>
               <h4 style={{ color: 'var(--brand-red)', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                 <Tag size={20} />
-                {language === 'ar' ? 'لفترة محدودة' : 'Limited Time'}
+                {language === 'ar' ? 'عروض لفترة محدودة.. الحقها!' : 'Limited Time'}
               </h4>
               <h2 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', color: 'var(--gold)' }}>
-                {language === 'ar' ? 'عروض وخصومات اليوم' : "Today's Offers & Discounts"}
+                {language === 'ar' ? 'عروض وخصومات النهاردة' : "Today's Offers & Discounts"}
               </h2>
             </div>
 
@@ -109,18 +109,18 @@ export default function Home() {
 
       {/* Our Story Snapshot */}
       <section className="section container">
-        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 'clamp(1.5rem, 4vw, 3rem)' }}>
-          <div style={{ flex: '1 1 min(100%, 300px)' }}>
-            <img src={StoryImage} loading="lazy" alt="Chef preparing food" style={{ width: '100%', borderRadius: '12px', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }} />
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 'clamp(2rem, 5vw, 4rem)' }}>
+          <div style={{ flex: '1 1 min(100%, 320px)' }}>
+            <img src={StoryImage} loading="lazy" alt="Chef preparing food" style={{ width: '100%', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.4)', display: 'block' }} />
           </div>
-          <div style={{ flex: '1 1 min(100%, 280px)' }}>
-            <h4 style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '1rem', fontSize: 'clamp(0.8rem, 2vw, 1rem)' }}>
+          <div style={{ flex: '1 1 min(100%, 280px)', padding: '0.5rem 0' }}>
+            <h4 style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '1.2rem', fontSize: 'clamp(0.85rem, 2vw, 1.05rem)' }}>
               {t('story.subtitle')}
             </h4>
-            <h2 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', marginBottom: '1.5rem', lineHeight: 1.2 }}>
+            <h2 style={{ fontSize: 'clamp(1.8rem, 4.5vw, 3.2rem)', marginBottom: '1.5rem', lineHeight: 1.4 }}>
               {t('story.title')}
             </h2>
-            <p style={{ fontSize: 'clamp(0.95rem, 2vw, 1.1rem)', color: 'var(--text-secondary)', marginBottom: '2.5rem', lineHeight: 1.8 }}>
+            <p style={{ fontSize: 'clamp(1rem, 2vw, 1.15rem)', color: 'var(--text-secondary)', marginBottom: '2.5rem', lineHeight: 2.0 }}>
               {t('story.text')}
             </p>
             <Link to="/about" className="btn-outline">{t('story.btn')}</Link>
@@ -147,27 +147,99 @@ export default function Home() {
               <div
                 key={i}
                 onClick={() => setSelectedProduct(dish)}
-                style={{ backgroundColor: 'var(--bg-color)', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-color)', transition: 'transform 0.4s ease', cursor: 'pointer' }}
-                onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-8px)'}
-                onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                style={{
+                  backgroundColor: 'var(--card-bg)',
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  border: '1px solid var(--border-color)',
+                  transition: 'transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.06)'
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.transform = 'translateY(-8px)';
+                  e.currentTarget.style.borderColor = 'var(--gold)';
+                  e.currentTarget.style.boxShadow = '0 12px 30px rgba(0,0,0,0.12)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.borderColor = 'var(--border-color)';
+                  e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.06)';
+                }}
               >
-                <img src={dish.img} alt={language === 'ar' ? dish.name_ar : dish.name_en} style={{ width: '100%', height: '220px', objectFit: 'cover' }} />
-                <div style={{ padding: '1.5rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem' }}>
-                    <h3 style={{ fontSize: 'clamp(1.1rem, 2.5vw, 1.5rem)', margin: 0 }}>{language === 'ar' ? dish.name_ar : dish.name_en}</h3>
-                    <span style={{ color: 'var(--gold)', fontWeight: 'bold', fontSize: '1.1rem', flexShrink: 0, marginLeft: '0.5rem' }}>{dish.displayPrice}</span>
-                  </div>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '1.5rem' }}>{language === 'ar' ? dish.desc_ar : dish.desc_en}</p>
+                <div style={{ position: 'relative', width: '100%', height: '220px', overflow: 'hidden' }}>
+                  <img
+                    src={dish.img}
+                    alt={language === 'ar' ? dish.name_ar : dish.name_en}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.5s ease' }}
+                    onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
+                    onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                  />
+                </div>
 
+                <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  {/* Dish Title - Clean and on its own line */}
+                  <h3 style={{
+                    fontSize: 'clamp(1.15rem, 2.5vw, 1.35rem)',
+                    margin: 0,
+                    marginBottom: '0.6rem',
+                    color: 'var(--gold)',
+                    lineHeight: 1.4
+                  }}>
+                    {language === 'ar' ? dish.name_ar : dish.name_en}
+                  </h3>
+
+                  {/* Dish Description */}
+                  <p style={{
+                    color: 'var(--text-secondary)',
+                    fontSize: '0.92rem',
+                    lineHeight: 1.6,
+                    marginBottom: '1.2rem',
+                    flex: 1
+                  }}>
+                    {language === 'ar' ? dish.desc_ar : dish.desc_en}
+                  </p>
+
+                  {/* Dedicated Price Row - Completely separated from the title */}
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '1rem',
+                    paddingTop: '0.8rem',
+                    borderTop: '1px dashed var(--border-color)',
+                    marginTop: 'auto'
+                  }}>
+                    <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 600 }}>
+                      {language === 'ar' ? 'السعر' : 'Price'}
+                    </span>
+                    <span style={{
+                      color: 'var(--brand-red)',
+                      fontWeight: 900,
+                      fontSize: '1.35rem',
+                      display: 'inline-flex',
+                      alignItems: 'baseline',
+                      gap: '0.25rem'
+                    }}>
+                      <span>{dish.price}</span>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>
+                        {language === 'ar' ? 'ج.م' : 'EGP'}
+                      </span>
+                    </span>
+                  </div>
+
+                  {/* Order Button */}
                   <button
                     className="order-btn"
-                    style={{ width: '100%', marginTop: '0.5rem' }}
+                    style={{ width: '100%' }}
                     onClick={(e) => {
                       e.stopPropagation();
                       setSelectedProduct(dish);
                     }}
                   >
-                    {language === 'ar' ? 'اطلب الآن' : 'Order Now'}
+                    {language === 'ar' ? 'اطلب دلوقتي' : 'Order Now'}
                   </button>
                 </div>
               </div>

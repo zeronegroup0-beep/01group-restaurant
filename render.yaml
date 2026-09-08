@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: demashqi-restaurant
+    name: 01group-restaurant
     env: node
     buildCommand: npm install && npm run build
     startCommand: node backend/server.js

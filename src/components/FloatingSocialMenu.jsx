@@ -121,7 +121,7 @@ const FloatingSocialMenu = () => {
         }}
       >
         <a
-          href="https://www.facebook.com/alsharqdamanhour"
+          href="https://facebook.com"
           target="_blank"
           rel="noopener noreferrer"
           onClick={handleLinkClick}
@@ -165,7 +165,7 @@ const FloatingSocialMenu = () => {
           <InstagramIcon />
         </a>
         <a
-          href="https://wa.me/201556861715"
+          href="https://wa.me/201000000000"
           target="_blank"
           rel="noopener noreferrer"
           onClick={handleLinkClick}

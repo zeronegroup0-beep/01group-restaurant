@@ -18,12 +18,12 @@
  // Home - Story
  'story.subtitle': 'Our Heritage',
  'story.title': 'A Tradition of Excellence',
- 'story.text': 'From the bustling streets of ancient Syria to your plate, Al Demashqi is more than just a restaurant; it\'s a celebration of heritage. Our master chefs use only the finest ingredients to ensure every bite tells a story of tradition, flavor, and family.',
+ 'story.text': 'From the bustling streets of ancient Syria to your plate, 01Group is more than just a restaurant; it\'s a celebration of heritage. Our master chefs use only the finest ingredients to ensure every bite tells a story of tradition, flavor, and family.',
  'story.btn': 'Discover Our Story',
  // Home - Featured
  'featured.subtitle': 'Signature Dishes',
  'featured.title': 'Culinary Masterpieces',
- 'featured.dish1.name': 'Demashqi Shawarma',
+ 'featured.dish1.name': '01Group Shawarma',
  'featured.dish1.desc': 'Marinated in secret spices and slow-roasted to perfection.',
  'featured.dish2.name': 'Family Submarine',
  'featured.dish2.desc': 'A massive feast loaded with tender chicken, fries, and our signature sauces.',
@@ -39,7 +39,7 @@
  'footer.events': 'Events',
  'footer.testimonials': 'Testimonials',
  'footer.feedback': 'Feedback',
- 'footer.rights': 'Al Demashqi Restaurant. All rights reserved.',
+ 'footer.rights': '01Group. All rights reserved.',
 
  // Contact Page
  'contact.title': 'Contact Us',
@@ -55,7 +55,7 @@
  • Al-Rahibat Branch - 045/3220067 - 01060646298 
  • Damanhour University Branch - 045/3149998 `,
  'contact.email': '✉️ Email',
- 'contact.emailDesc': 'hello@aldemashqi.qa',
+ 'contact.emailDesc': 'hello@01group.com',
  'contact.form.name': 'Name',
  'contact.form.email': 'Email (Gmail preferred)',
  'contact.form.subject': 'Opinion / Subject',
@@ -254,17 +254,17 @@
  'info.phone': '١٧٨٧١',
  // Home - Story
  'story.subtitle': 'تراثنا',
- 'story.title': 'عراقة المذاق الدمشقي',
- 'story.text': 'من شوارع دمشق العريقة إلى مائدتك، الدمشقي ليس مجرد مطعم؛ بل هو احتفال بالتراث. طهاتنا الماهرون يستخدمون أفضل المكونات لضمان أن كل لقمة تحكي قصة العائلة والنكهة السورية الأصيلة.',
+ 'story.title': 'عراقة مذاق الشاورما',
+ 'story.text': 'من شوارع سوريا العريقة إلى مائدتك، 01Group ليس مجرد مطعم؛ بل هو احتفال بالتراث. طهاتنا الماهرون يستخدمون أفضل المكونات لضمان أن كل لقمة تحكي قصة العائلة والنكهة السورية الأصيلة.',
  'story.btn': 'اكتشف قصتنا',
  // Home - Featured
  'featured.subtitle': 'أطباق مميزة',
- 'featured.title': 'روائع المطبخ الدمشقي',
- 'featured.dish1.name': 'شاورما الدمشقي',
+ 'featured.title': 'روائع المطبخ السوري',
+ 'featured.dish1.name': 'شاورما 01Group',
  'featured.dish1.desc': 'متبلة بخلطتنا السرية ومشوية على نار هادئة.',
  'featured.dish2.name': 'الصاروخ العائلي',
  'featured.dish2.desc': 'وجبة عملاقة مليئة بالدجاج والبطاطس والصوصات المميزة.',
- 'featured.dish3.name': 'بيتزا الدمشقي المحشية',
+ 'featured.dish3.name': 'بيتزا 01Group المحشية',
  'featured.dish3.desc': 'أطراف محشية بالجبن مع أشهى الإضافات الأصلية.',
  'featured.btn': 'عرض المنيو كامل',
  // Footer
@@ -276,7 +276,7 @@
  'footer.events': 'الفعاليات',
  'footer.testimonials': 'آراء العملاء',
  'footer.feedback': 'المقترحات والشكاوى',
- 'footer.rights': 'مطعم الدمشقي. جميع الحقوق محفوظة.',
+ 'footer.rights': '01Group. جميع الحقوق محفوظة.',
 
  // Contact Page
  'contact.title': 'اتصل بنا',
@@ -288,7 +288,7 @@
  'contact.phone': '📞 الهاتف',
  'contact.phoneDesc': ' الفرع الرئيسي - 045/3149997 - 01094956760 •\nفرع الراهبات - 045/3220067 - 01060646298 •\n الفرع جامعة دمنهور - 045/3149998 •',
  'contact.email': '✉️ البريد الإلكتروني',
- 'contact.emailDesc': 'hello@aldemashqi.qa',
+ 'contact.emailDesc': 'hello@01group.com',
  'contact.form.name': 'الاسم',
  'contact.form.email': 'البريد الإلكتروني (يفضل جيميل)',
  'contact.form.subject': 'الرأي / الموضوع',

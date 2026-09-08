@@ -21,13 +21,7 @@ backend/.env
 *.db-shm
 *.db-wal
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# Nested / duplicate project folders
+El-Sharq resturant/
+El-Sharq-resturant/
+"El-Sharq resturant V1"

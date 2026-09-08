@@ -3,6 +3,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { ShoppingCart } from 'lucide-react';
 
 /* ── Glassmorphic arrow SVG icons ─────────────────────────────────── */
+/* ── Glassmorphic arrow SVG icons ─────────────────────────────────── */
 function ArrowBtn({ direction, onClick, disabled, isRTL }) {
   const [pressed, setPressed] = useState(false);
   const [hovered, setHovered] = useState(false);
@@ -24,33 +25,33 @@ function ArrowBtn({ direction, onClick, disabled, isRTL }) {
       onMouseUp={() => setPressed(false)}
       aria-label={direction === 'prev' ? 'Previous' : 'Next'}
       style={{
-        width:  '42px',
-        height: '42px',
+        width:  '44px',
+        height: '44px',
         borderRadius: '50%',
-        border: `1px solid rgba(255,255,255,${hovered && !disabled ? 0.25 : 0.1})`,
+        border: '2px solid var(--brand-red, #dc2626)',
         background: hovered && !disabled
-          ? 'rgba(239,68,68,0.18)'
-          : 'rgba(255,255,255,0.06)',
+          ? 'var(--brand-red, #dc2626)'
+          : '#ffffff',
         backdropFilter: 'blur(10px)',
         WebkitBackdropFilter: 'blur(10px)',
         boxShadow: hovered && !disabled
-          ? `0 4px 20px rgba(239,68,68,0.35), 0 0 0 1px rgba(239,68,68,0.2)`
-          : '0 2px 8px rgba(0,0,0,0.3)',
+          ? '0 6px 20px rgba(220, 38, 38, 0.45)'
+          : '0 2px 10px rgba(220, 38, 38, 0.22)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.3 : 1,
+        opacity: disabled ? 0.35 : 1,
         flexShrink: 0,
         pointerEvents: disabled ? 'none' : 'auto',
-        transform: pressed && !disabled ? 'scale(0.88)' : hovered && !disabled ? 'scale(1.1)' : 'scale(1)',
-        transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+        transform: pressed && !disabled ? 'scale(0.9)' : hovered && !disabled ? 'scale(1.12)' : 'scale(1)',
+        transition: 'all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1)',
         outline: 'none',
       }}
     >
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-        stroke={hovered && !disabled ? '#ef4444' : 'rgba(255,255,255,0.75)'}
-        strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+        stroke={hovered && !disabled ? '#ffffff' : 'var(--brand-red, #dc2626)'}
+        strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"
         style={{ transform: pointsRight ? 'none' : 'rotate(180deg)', transition: 'stroke 0.2s' }}>
         <polyline points="9 18 15 12 9 6" />
       </svg>
@@ -142,7 +143,7 @@ export default function OffersSlider({ products, items, onItemClick, title }) {
           fontWeight: '900',
           letterSpacing: '1px',
         }}>
-          {title || (language === 'ar' ? '🔥 عروض مميزة' : '🔥 Special Offers')}
+          {title || (language === 'ar' ? '🔥 عروض النهاردة اللي متتفوتش' : '🔥 Special Offers')}
         </h3>
       )}
 
@@ -186,11 +187,12 @@ export default function OffersSlider({ products, items, onItemClick, title }) {
                     navigate(i);
                   }
                 }}
+                className={`offer-slider-card ${isActive ? 'active' : ''}`}
                 style={{
                   scrollSnapAlign: 'center',
                   flexShrink: 0,
                   width: 'clamp(250px, 30vw, 305px)',
-                  height: '390px',
+                  height: '405px',
                   borderRadius: '20px',
                   backgroundColor: 'var(--card-bg)',
                   overflow: 'hidden',
@@ -198,11 +200,13 @@ export default function OffersSlider({ products, items, onItemClick, title }) {
                   display: 'flex',
                   flexDirection: 'column',
                   transform: isActive ? 'scale(1.05)' : 'scale(1.0)',
-                  opacity: isActive ? 1 : 0.8,
-                  border: isActive ? '2px solid rgba(255, 50, 50, 0.6)' : '2px solid transparent',
+                  opacity: isActive ? 1 : 0.92,
+                  border: isActive 
+                    ? '2.5px solid rgba(220, 38, 38, 0.85)' 
+                    : '2px solid rgba(212, 175, 55, 0.45)',
                   boxShadow: isActive 
-                    ? '0 0 25px rgba(255, 50, 50, 0.6), 0 4px 14px rgba(0,0,0,0.3)'
-                    : '0 4px 14px rgba(0,0,0,0.3)',
+                    ? '0 0 25px rgba(220, 38, 38, 0.55), 0 8px 24px rgba(0,0,0,0.15)'
+                    : '0 4px 16px rgba(0,0,0,0.08), 0 0 0 1px rgba(212,175,55,0.15)',
                   transition: 'all 0.3s ease-out',
                   cursor: isActive ? 'default' : 'pointer',
                 }}
@@ -260,7 +264,7 @@ export default function OffersSlider({ products, items, onItemClick, title }) {
                       ? (language === 'ar' ? 'عرض اليوم' : "Today's Offer")
                       : item.offer_type === 'weekly'
                       ? (language === 'ar' ? 'عرض الأسبوع' : 'Weekly Offer')
-                      : (language === 'ar' ? 'الأكثر طلباً' : 'Best Seller')}
+                      : (language === 'ar' ? 'الأكتر طلباً عند حبايبنا' : 'Best Seller')}
                   </div>
                 )}
 
@@ -332,6 +336,7 @@ export default function OffersSlider({ products, items, onItemClick, title }) {
 
                   {/* CTA */}
                   <button
+                    className="offer-cta-btn"
                     onClick={(e) => {
                       e.stopPropagation();
                       onItemClick && onItemClick(item);
@@ -341,9 +346,7 @@ export default function OffersSlider({ products, items, onItemClick, title }) {
                       width: '100%',
                       padding: '0.7rem 1rem',
                       borderRadius: '12px',
-                      border: '1px solid rgba(229,185,66,0.3)',
-                      background: 'linear-gradient(135deg, var(--gold) 0%, #c8941a 100%)',
-                      color: '#000',
+                      border: '1px solid rgba(180, 130, 20, 0.35)',
                       fontWeight: 800,
                       fontSize: '0.92rem',
                       cursor: 'pointer',
@@ -351,15 +354,12 @@ export default function OffersSlider({ products, items, onItemClick, title }) {
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: '0.5rem',
-                      boxShadow: '0 4px 16px rgba(229,185,66,0.3)',
                       direction: isRTL ? 'rtl' : 'ltr',
-                      opacity: isActive ? 1 : 0,
-                      pointerEvents: isActive ? 'auto' : 'none',
-                      transition: 'opacity 0.3s ease',
+                      transition: 'all 0.25s ease',
                     }}
                   >
                     <ShoppingCart size={16} />
-                    {language === 'ar' ? 'اطلب الآن' : 'Order Now'}
+                    {language === 'ar' ? 'اطلب دلوقتي' : 'Order Now'}
                   </button>
                 </div>
               </div>
@@ -391,15 +391,15 @@ export default function OffersSlider({ products, items, onItemClick, title }) {
               onClick={() => navigate(i)}
               aria-label={`Go to slide ${i + 1}`}
               style={{
-                width:  i === activeIndex ? '24px' : '8px',
-                height: '8px',
-                borderRadius: '4px',
+                width:  i === activeIndex ? '26px' : '9px',
+                height: '9px',
+                borderRadius: '5px',
                 border: 'none', padding: 0, outline: 'none',
                 cursor: 'pointer',
                 backgroundColor: i === activeIndex
                   ? 'var(--gold)'
-                  : 'rgba(255,255,255,0.2)',
-                boxShadow: i === activeIndex ? '0 0 8px rgba(229,185,66,0.6)' : 'none',
+                  : 'rgba(43, 29, 15, 0.22)',
+                boxShadow: i === activeIndex ? '0 0 10px rgba(212, 175, 55, 0.7)' : 'none',
                 transition: 'all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
               }}
             />
@@ -419,6 +419,24 @@ export default function OffersSlider({ products, items, onItemClick, title }) {
           display: none !important;
           width: 0 !important;
           height: 0 !important;
+        }
+
+        .offer-cta-btn {
+          background: linear-gradient(135deg, #fce074 0%, #d4af37 100%) !important;
+          color: #2b1d0f !important;
+          box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35);
+        }
+
+        .offer-cta-btn:hover {
+          background: linear-gradient(135deg, #b8860b 0%, #7c5400 100%) !important;
+          color: #ffffff !important;
+          box-shadow: 0 6px 20px rgba(184, 134, 11, 0.55) !important;
+          transform: translateY(-2px);
+        }
+
+        .offer-slider-card:not(.active):hover {
+          border-color: #b8860b !important;
+          box-shadow: 0 8px 24px rgba(184, 134, 11, 0.25) !important;
         }
 
         @keyframes cartBounce {

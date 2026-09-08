@@ -13,7 +13,7 @@ const SocialMediaFooter = ({ customLogo }) => {
     },
     {
       name: 'Facebook',
-      url: 'https://www.facebook.com/alsharqdamanhour',
+      url: 'https://facebook.com',
       svg: (
         <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
           <path d="M14 13.5h2.5l1-4H14v-2c0-1.03 0-2 2-2h1.5V2.14c-.326-.043-1.557-.14-2.857-.14C11.928 2 10 3.657 10 6.7v2.8H7.5v4H10v9.5h4v-9.5z"/>
@@ -22,7 +22,7 @@ const SocialMediaFooter = ({ customLogo }) => {
     },
     {
       name: 'TikTok',
-      url: 'https://www.tiktok.com/@elsh3rk_restaurant?_r=1&_t=ZS-98ugylT8HCv',
+      url: 'https://tiktok.com',
       svg: (
         <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
           <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93v7.2c0 1.93-.41 3.88-1.5 5.5-1.57 2.33-4.22 3.5-7.05 3.21-2.91-.3-5.46-2.12-6.52-4.88-1.07-2.76-.56-5.99 1.34-8.25 1.83-2.17 4.79-3.1 7.57-2.47.01 1.37.01 2.73.01 4.1-1.3-.23-2.69-.03-3.83.67-1.3.8-2.09 2.29-2 3.82.09 1.63 1.15 3.1 2.67 3.67 1.57.59 3.42.34 4.71-.7 1.14-.91 1.75-2.35 1.73-3.81V.02z"/>

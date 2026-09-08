@@ -42,7 +42,7 @@ const Navbar = () => {
     { to: '/about', label: t('nav.about') },
     { to: '/reservations', label: t('nav.reservations') },
     { to: '/contact', label: t('nav.contact') },
-    { to: '/track', label: language === 'ar' ? 'تتبع الطلب' : 'Track Order' },
+    { to: '/track', label: language === 'ar' ? 'تتبع أوردرك' : 'Track Order' },
   ];
 
   const handleResetNavigation = (e, targetPath) => {
@@ -59,7 +59,7 @@ const Navbar = () => {
       <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         {/* Logo */}
         <a href="/" onClick={(e) => handleResetNavigation(e, '/')} className="navbar-brand" style={{ display: 'flex', alignItems: 'center', gap: '12px', zIndex: 1100, cursor: 'pointer' }}>
-          <img src={LogoImg} alt="Bait El-Asmak Logo" style={{ height: 'clamp(32px, 8vw, 44px)', filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.5))' }} />
+          <img src={LogoImg} alt={language === 'ar' ? 'شعار 01Group' : '01Group Logo'} style={{ height: 'clamp(32px, 8vw, 44px)', width: 'auto', objectFit: 'contain', filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.5))' }} />
         </a>
 
         {/* Desktop nav links */}
@@ -215,13 +215,13 @@ const Navbar = () => {
 };
 
 const Footer = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   return (
     <footer className="footer no-interaction">
       <div className="container">
         <div className="footer-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <img src={LogoImg} alt="Bait El-Asmak Logo" draggable="false" style={{ height: '80px', marginBottom: '1rem', filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.5))' }} />
+          <img src={LogoImg} alt={language === 'ar' ? 'شعار 01Group' : '01Group Logo'} draggable="false" style={{ height: '80px', width: 'auto', objectFit: 'contain', marginBottom: '1rem', filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.5))' }} />
           <p>{t('footer.desc')}</p>
         </div>
         <div className="nav-links" style={{ justifyContent: 'center', marginBottom: '2rem', display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
@@ -241,10 +241,28 @@ const Footer = () => {
               navigate('/admin-dashboard');
             }
           }}
-          style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', cursor: 'pointer', userSelect: 'none' }}
+          style={{
+            marginTop: '2rem',
+            paddingTop: '1.5rem',
+            borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+            color: 'var(--text-secondary)',
+            fontSize: '0.85rem',
+            cursor: 'pointer',
+            userSelect: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexWrap: 'wrap',
+            gap: '0.5rem',
+            direction: language === 'ar' ? 'rtl' : 'ltr',
+            textAlign: 'center',
+            letterSpacing: '0.3px'
+          }}
           title=""
         >
-          &copy; {new Date().getFullYear()} {t('footer.rights')} | Developed by Mostafa & Osama
+          <span>Developed by <strong style={{ color: 'var(--gold)', fontWeight: 600 }}>01Group</strong></span>
+          <span style={{ opacity: 0.5 }}>|</span>
+          <span>&copy; {new Date().getFullYear()} {language === 'ar' ? 'جميع الحقوق محفوظة' : 'All rights reserved'}</span>
         </p>
       </div>
     </footer>

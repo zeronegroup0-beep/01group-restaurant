@@ -7,10 +7,10 @@ export default function Locations() {
 
   const branches = [
     {
-      en: { name: 'Damanhour Branch', address: 'Al-Muhafaza St. - In front of Social Club' },
-      ar: { name: 'فرع دمنهور', address: 'شارع المحافظة - امام النادي الاجتماعي' },
+      en: { name: 'Cairo Branch', address: 'Nasr City - Cairo' },
+      ar: { name: 'فرع القاهرة', address: 'مدينة نصر - القاهرة' },
       phones: '19000',
-      mapLink: 'https://maps.app.goo.gl/ptV517u1JXwDMBt99'
+      mapLink: 'https://maps.google.com'
     },
     {
       en: { name: 'El Mansoura Branch', address: 'Nile Corniche - Next to the University' },
@@ -42,7 +42,7 @@ export default function Locations() {
       }}>
         <div className="container">
           <h1 style={{ color: 'var(--gold)', textShadow: '0 4px 12px rgba(0,0,0,0.8)' }}>
-            {language === 'ar' ? 'فروعنا' : 'Our Branches'}
+            {language === 'ar' ? 'فروعنا القريبة منك' : 'Our Branches'}
           </h1>
         </div>
       </header>
@@ -50,12 +50,12 @@ export default function Locations() {
       <section className="section container">
         <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
           <h2 style={{ fontSize: 'clamp(1.8rem, 5vw, 3rem)', color: 'var(--brand-red)' }}>
-            {language === 'ar' ? 'اكتشف أقرب فرع لك' : 'Find Your Nearest Branch'}
+            {language === 'ar' ? 'نوّرنا في أقرب فرع ليك' : 'Find Your Nearest Branch'}
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem', maxWidth: '600px', margin: '1rem auto' }}>
             {language === 'ar' 
-              ? 'نحن متواجدون في أهم المواقع لتقديم أشهى المأكولات البحرية الطازجة لكم.'
-              : 'We are located in key areas to bring the freshest seafood right to your table.'}
+              ? 'موجودين في أهم المناطق عشان نكون دايماً أقرب لبيتك، ومستنيينك تدوق أحلى لقمة شامية طازة من على النار.'
+              : 'We are located in key areas to bring authentic Syrian cuisine right to your table.'}
           </p>
         </div>
 
@@ -108,7 +108,7 @@ export default function Locations() {
                   }}
                 >
                   <MapPin size={18} />
-                  {language === 'ar' ? 'الاتجاهات' : 'Get Directions'}
+                  {language === 'ar' ? 'افتح اللوكيشن على الخريطة' : 'Get Directions'}
                 </a>
               </div>
             </div>

@@ -177,7 +177,7 @@ app.post('/api/payment/paymob', async (req, res) => {
 
     const billingData = {
       apartment: "NA", 
-      email: "customer@demashqi.com", 
+      email: "customer@01group.com", 
       floor: "NA", 
       first_name: firstName, 
       street: address || "NA", 
@@ -621,7 +621,7 @@ try {
     } else {
       console.warn('WARNING: dist/ folder not found. Only API routes are available.');
       app.get('/', (req, res) => {
-        res.json({ status: 'ok', message: 'Demashqi Restaurant API is running. Frontend not built yet.' });
+        res.json({ status: 'ok', message: '01Group API is running. Frontend not built yet.' });
       });
     }
   }
