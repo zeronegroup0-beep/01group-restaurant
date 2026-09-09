@@ -971,70 +971,6 @@ function CheckoutInternal({ isModal = false, onClose }) {
               }}
             >
               <div style={{ position: 'relative', width: '100%' }}>
-                {/* Floating Left Arrow - High Up on the Flexbox Image Area */}
-                <button
-                  type="button"
-                  onClick={() => handleScrollCrossSell('left')}
-                  aria-label="Scroll left"
-                  style={{
-                    position: 'absolute',
-                    left: '6px',
-                    top: '72px',
-                    transform: 'translateY(-50%)',
-                    zIndex: 25,
-                    width: '38px',
-                    height: '38px',
-                    borderRadius: '50%',
-                    border: '1.5px solid var(--gold)',
-                    backgroundColor: 'rgba(20, 20, 20, 0.88)',
-                    backdropFilter: 'blur(8px)',
-                    color: 'var(--gold)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    boxShadow: '0 4px 16px rgba(0,0,0,0.65)',
-                    transition: 'all 0.2s ease',
-                    padding: 0
-                  }}
-                  onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--gold)'; e.currentTarget.style.color = '#000'; e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(20, 20, 20, 0.88)'; e.currentTarget.style.color = 'var(--gold)'; e.currentTarget.style.transform = 'translateY(-50%) scale(1)'; }}
-                >
-                  <ChevronLeft size={22} />
-                </button>
-
-                {/* Floating Right Arrow - High Up on the Flexbox Image Area */}
-                <button
-                  type="button"
-                  onClick={() => handleScrollCrossSell('right')}
-                  aria-label="Scroll right"
-                  style={{
-                    position: 'absolute',
-                    right: '6px',
-                    top: '72px',
-                    transform: 'translateY(-50%)',
-                    zIndex: 25,
-                    width: '38px',
-                    height: '38px',
-                    borderRadius: '50%',
-                    border: '1.5px solid var(--gold)',
-                    backgroundColor: 'rgba(20, 20, 20, 0.88)',
-                    backdropFilter: 'blur(8px)',
-                    color: 'var(--gold)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    boxShadow: '0 4px 16px rgba(0,0,0,0.65)',
-                    transition: 'all 0.2s ease',
-                    padding: 0
-                  }}
-                  onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--gold)'; e.currentTarget.style.color = '#000'; e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(20, 20, 20, 0.88)'; e.currentTarget.style.color = 'var(--gold)'; e.currentTarget.style.transform = 'translateY(-50%) scale(1)'; }}
-                >
-                  <ChevronRight size={22} />
-                </button>
-
                 <div 
                   ref={crossSellRef}
                   className="slider-no-scrollbar"
@@ -1115,6 +1051,67 @@ function CheckoutInternal({ isModal = false, onClose }) {
                       </button>
                     </div>
                   ))}
+                </div>
+
+                {/* Navigation Arrows Below the Cards */}
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'center', 
+                  alignItems: 'center', 
+                  gap: '1rem', 
+                  marginTop: '0.8rem',
+                  paddingBottom: '0.3rem'
+                }}>
+                  <button
+                    type="button"
+                    onClick={() => handleScrollCrossSell('right')}
+                    aria-label="Scroll right"
+                    style={{
+                      width: '38px',
+                      height: '38px',
+                      borderRadius: '50%',
+                      border: '1.5px solid var(--gold)',
+                      backgroundColor: 'rgba(20, 20, 20, 0.88)',
+                      backdropFilter: 'blur(8px)',
+                      color: 'var(--gold)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
+                      transition: 'all 0.2s ease',
+                      padding: 0
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--gold)'; e.currentTarget.style.color = '#000'; e.currentTarget.style.transform = 'scale(1.1)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(20, 20, 20, 0.88)'; e.currentTarget.style.color = 'var(--gold)'; e.currentTarget.style.transform = 'scale(1)'; }}
+                  >
+                    <ChevronRight size={22} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleScrollCrossSell('left')}
+                    aria-label="Scroll left"
+                    style={{
+                      width: '38px',
+                      height: '38px',
+                      borderRadius: '50%',
+                      border: '1.5px solid var(--gold)',
+                      backgroundColor: 'rgba(20, 20, 20, 0.88)',
+                      backdropFilter: 'blur(8px)',
+                      color: 'var(--gold)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
+                      transition: 'all 0.2s ease',
+                      padding: 0
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--gold)'; e.currentTarget.style.color = '#000'; e.currentTarget.style.transform = 'scale(1.1)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(20, 20, 20, 0.88)'; e.currentTarget.style.color = 'var(--gold)'; e.currentTarget.style.transform = 'scale(1)'; }}
+                  >
+                    <ChevronLeft size={22} />
+                  </button>
                 </div>
               </div>
             </div>
