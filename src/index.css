@@ -833,3 +833,13 @@ select {
     line-height: 1.4;
   }
 }
+
+.slider-no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.slider-no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
