@@ -1064,51 +1064,17 @@ function CheckoutInternal({ isModal = false, onClose }) {
                 }}>
                   <button
                     type="button"
+                    className="cross-sell-nav-btn"
                     onClick={() => handleScrollCrossSell('right')}
                     aria-label="Scroll right"
-                    style={{
-                      width: '38px',
-                      height: '38px',
-                      borderRadius: '50%',
-                      border: '1.5px solid var(--gold)',
-                      backgroundColor: 'rgba(20, 20, 20, 0.88)',
-                      backdropFilter: 'blur(8px)',
-                      color: 'var(--gold)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: 'pointer',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
-                      transition: 'all 0.2s ease',
-                      padding: 0
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--gold)'; e.currentTarget.style.color = '#000'; e.currentTarget.style.transform = 'scale(1.1)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(20, 20, 20, 0.88)'; e.currentTarget.style.color = 'var(--gold)'; e.currentTarget.style.transform = 'scale(1)'; }}
                   >
                     <ChevronRight size={22} />
                   </button>
                   <button
                     type="button"
+                    className="cross-sell-nav-btn"
                     onClick={() => handleScrollCrossSell('left')}
                     aria-label="Scroll left"
-                    style={{
-                      width: '38px',
-                      height: '38px',
-                      borderRadius: '50%',
-                      border: '1.5px solid var(--gold)',
-                      backgroundColor: 'rgba(20, 20, 20, 0.88)',
-                      backdropFilter: 'blur(8px)',
-                      color: 'var(--gold)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: 'pointer',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
-                      transition: 'all 0.2s ease',
-                      padding: 0
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--gold)'; e.currentTarget.style.color = '#000'; e.currentTarget.style.transform = 'scale(1.1)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(20, 20, 20, 0.88)'; e.currentTarget.style.color = 'var(--gold)'; e.currentTarget.style.transform = 'scale(1)'; }}
                   >
                     <ChevronLeft size={22} />
                   </button>

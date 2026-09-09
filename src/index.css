@@ -842,4 +842,38 @@ select {
   display: none !important;
   width: 0 !important;
   height: 0 !important;
+}
+
+/* Cross-Sell Carousel Navigation Buttons */
+.cross-sell-nav-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1.5px solid var(--gold);
+  background-color: rgba(20, 20, 20, 0.88);
+  backdrop-filter: blur(8px);
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  transition: transform 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+  padding: 0;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cross-sell-nav-btn:hover {
+    background-color: rgba(212, 175, 55, 0.2);
+    transform: scale(1.08);
+  }
+}
+
+.cross-sell-nav-btn:active {
+  background-color: var(--gold) !important;
+  color: #000 !important;
+  transform: scale(0.92) !important;
 }
