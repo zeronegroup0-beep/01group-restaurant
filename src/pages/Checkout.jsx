@@ -645,9 +645,9 @@ function CheckoutInternal({ isModal = false, onClose }) {
   useEffect(() => {
     // Static standard Shawarma extras
     const staticExtras = [
-      { id: 'extra-garlic', name_ar: 'تومية عادية', name_en: 'Garlic Dip', price: 10, img: 'Images/Products/sauces/garlic.png', is_addon: true },
-      { id: 'extra-cheddar-fries', name_ar: 'بطاطس شيدر', name_en: 'Cheddar Fries', price: 25, img: 'Images/Products/appetizers/fries.png', is_addon: true },
-      { id: 'extra-coleslaw', name_ar: 'سلطة كول سلو', name_en: 'Coleslaw', price: 15, img: 'Images/Products/sauces/coleslaw.png', is_addon: true }
+      { id: 'extra-garlic', name_ar: 'تومية عادية', name_en: 'Garlic Dip', price: 10, img: import.meta.env.BASE_URL + 'Images/garlic_dip.jpg', is_addon: true },
+      { id: 'extra-cheddar-fries', name_ar: 'بطاطس شيدر', name_en: 'Cheddar Fries', price: 25, img: import.meta.env.BASE_URL + 'Images/cheddar_fries.jpg', is_addon: true },
+      { id: 'extra-coleslaw', name_ar: 'سلطة كول سلو', name_en: 'Coleslaw', price: 15, img: import.meta.env.BASE_URL + 'Images/coleslaw.jpg', is_addon: true }
     ];
     setCrossSellItems(staticExtras);
   }, [cart]);
@@ -1051,7 +1051,15 @@ function CheckoutInternal({ isModal = false, onClose }) {
                 >
                   {crossSellItems.map(item => (
                     <div key={item.id} style={{ minWidth: '220px', flexShrink: 0, padding: '1rem', border: '1px solid var(--border-color)', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '0.8rem', backgroundColor: 'rgba(255,255,255,0.02)' }}>
-                      {item.img && <img src={item.img} alt={item.name_en} style={{ width: '100%', height: '120px', objectFit: 'cover', borderRadius: '8px' }} />}
+                      {item.img && (
+                        <img 
+                          src={item.img} 
+                          alt={item.name_en} 
+                          loading="lazy"
+                          onError={e => { e.target.style.display = 'none'; }}
+                          style={{ width: '100%', height: '130px', objectFit: 'cover', borderRadius: '10px' }} 
+                        />
+                      )}
                       <div style={{ flex: 1 }}>
                         <h4 style={{ margin: '0 0 0.4rem', fontSize: '1rem', color: 'var(--text-primary)' }}>
                           {language === 'ar' ? item.name_ar : item.name_en}
