@@ -216,7 +216,7 @@ export default function Reservations() {
       <header className="page-header" style={{ minHeight: '50vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundImage: `linear-gradient(var(--dark-overlay), var(--dark-overlay)), url(${import.meta.env.BASE_URL}Images/12.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
         <div className="container" style={{ textAlign: 'center', padding: '0 1rem' }}>
           <h1 className="scale-in" style={{ fontSize: 'clamp(2.2rem, 7vw, 4.5rem)', color: 'var(--gold)', textShadow: '0 8px 20px rgba(0,0,0,0.9)', marginBottom: '1rem' }}>
-            {language === 'ar' ? 'احجز طاولتك' : 'Book a Table'}
+            {language === 'ar' ? 'احجز ترابيزتك' : 'Book a Table'}
           </h1>
           <p className="fade-in stagger-1" style={{ fontSize: 'clamp(1rem, 3vw, 1.4rem)', color: '#fff', fontWeight: 'bold' }}>
             {language === 'ar' ? 'احجز مكانك لتجربة طعام لا تُنسى.' : 'Reserve your spot for an unforgettable dining experience.'}
