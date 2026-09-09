@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
-import { Store, ShoppingBag, CheckCircle, Navigation, Banknote, AlertTriangle, X, Edit2, Trash2, MapPin, Truck } from 'lucide-react';
+import { Store, ShoppingBag, CheckCircle, Navigation, Banknote, AlertTriangle, X, Edit2, Trash2, MapPin, Truck, ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductModal from '../components/ProductModal';
 import RecommendationsModal from '../components/RecommendationsModal';
 
@@ -159,8 +159,15 @@ function CheckoutForm({ formData, setFormData, cart, cartTotal, status, setStatu
     const dailyOrderId = globalCounter;
 
     try {
+      const sanitizedItems = (cart || []).map(item => ({
+        ...item,
+        name: String(item?.name || 'عنصر'),
+        price: typeof item?.price === 'number' ? item.price : (Number(String(item?.price).replace(/[^\d.]/g, '')) || 0),
+        quantity: Number(item?.quantity) || 1
+      }));
+
       const payload = {
-        items: cart,
+        items: sanitizedItems,
         total: Number(cartTotal) || 0,
         address: addressStr,
         name: formData.name,
@@ -178,9 +185,15 @@ function CheckoutForm({ formData, setFormData, cart, cartTotal, status, setStatu
         body: JSON.stringify(payload)
       });
 
-      const data = await response.json();
+      const responseText = await response.text();
+      let data = {};
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseErr) {
+        console.error('Non-JSON response from server:', responseText);
+      }
 
-      if (response.ok) {
+      if (response.ok && (data.success || data.id)) {
         setStatus({ 
           type: 'success', 
           message: language === 'ar' ? `تم تأكيد الطلب #${dailyOrderId} وجاري تحضيره الآن!` : `Order #${dailyOrderId} confirmed and is being prepared!`,
@@ -189,10 +202,10 @@ function CheckoutForm({ formData, setFormData, cart, cartTotal, status, setStatu
         setConfirmedOrderData({ ...payload, orderId: dailyOrderId, date: new Date().toLocaleString() });
         clearCart();
       } else {
-        console.log('Order Submit Error:', data);
-        const errorMsg = data.error 
-          ? (Array.isArray(data.error) ? data.error[0].message : data.error) 
-          : (language === 'ar' ? 'فشل في إرسال الطلب.' : 'Failed to place order.');
+        console.log('Order Submit Error:', data, responseText);
+        const errorMsg = data?.error 
+          ? (Array.isArray(data.error) ? data.error[0].message : (typeof data.error === 'object' ? JSON.stringify(data.error) : data.error)) 
+          : (language === 'ar' ? 'فشل في إرسال الطلب، يرجى المحاولة مرة أخرى.' : 'Failed to place order, please try again.');
         setStatus({ type: 'error', message: errorMsg });
       }
     } catch (err) {
@@ -604,6 +617,18 @@ function CheckoutInternal({ isModal = false, onClose }) {
   const [crossSellItems, setCrossSellItems] = useState([]);
   const [showCrossSell, setShowCrossSell] = useState(true);
   const [showRecModal, setShowRecModal] = useState(false);
+  const crossSellRef = React.useRef(null);
+
+  const handleScrollCrossSell = (direction) => {
+    if (!crossSellRef.current) return;
+    const container = crossSellRef.current;
+    const scrollStep = 240;
+    if (direction === 'left') {
+      container.scrollBy({ left: -scrollStep, behavior: 'smooth' });
+    } else {
+      container.scrollBy({ left: scrollStep, behavior: 'smooth' });
+    }
+  };
 
   const handleAddSuggestion = (item) => {
     const priceToAdd = typeof item?.price === 'object' ? Math.min(...Object.values(item.price)) : item?.price;
@@ -882,11 +907,65 @@ function CheckoutInternal({ isModal = false, onClose }) {
 
         {/* Cross-Sell / Suggested Products Section */}
         {crossSellItems.length > 0 && (
-          <div style={{ backgroundColor: 'var(--card-bg)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--border-color)', marginBottom: '2rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--gold)' }}>
-                {language === 'ar' ? '🍟 إضافات' : '🍟 Add-ons / Extras'}
-              </h3>
+          <div style={{ backgroundColor: 'var(--card-bg)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--border-color)', marginBottom: '2rem', position: 'relative' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.8rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--gold)', fontSize: '1.3rem' }}>
+                  🍟 {language === 'ar' ? 'إضافات' : 'Add-ons / Extras'}
+                </h3>
+                {showCrossSell && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <button
+                      type="button"
+                      onClick={() => handleScrollCrossSell('right')}
+                      title={language === 'ar' ? 'سهم يمين' : 'Right'}
+                      aria-label="Scroll right"
+                      style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        border: '1.5px solid var(--gold)',
+                        backgroundColor: 'rgba(212, 175, 55, 0.12)',
+                        color: 'var(--gold)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        padding: 0
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--gold)'; e.currentTarget.style.color = '#000'; }}
+                      onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(212, 175, 55, 0.12)'; e.currentTarget.style.color = 'var(--gold)'; }}
+                    >
+                      <ChevronRight size={18} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleScrollCrossSell('left')}
+                      title={language === 'ar' ? 'سهم شمال' : 'Left'}
+                      aria-label="Scroll left"
+                      style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        border: '1.5px solid var(--gold)',
+                        backgroundColor: 'rgba(212, 175, 55, 0.12)',
+                        color: 'var(--gold)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        padding: 0
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--gold)'; e.currentTarget.style.color = '#000'; }}
+                      onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(212, 175, 55, 0.12)'; e.currentTarget.style.color = 'var(--gold)'; }}
+                    >
+                      <ChevronLeft size={18} />
+                    </button>
+                  </div>
+                )}
+              </div>
               <button 
                 onClick={(e) => {
                   e.preventDefault();
@@ -923,7 +1002,53 @@ function CheckoutInternal({ isModal = false, onClose }) {
                 transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
               }}
             >
-              <div style={{ display: 'flex', overflowX: 'auto', gap: '1rem', paddingBottom: '1rem', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                {/* Floating Left Arrow */}
+                <button
+                  type="button"
+                  onClick={() => handleScrollCrossSell('left')}
+                  aria-label="Scroll left"
+                  style={{
+                    position: 'absolute',
+                    left: '-6px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    zIndex: 10,
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '50%',
+                    border: '1.5px solid var(--gold)',
+                    backgroundColor: 'rgba(15, 15, 15, 0.9)',
+                    backdropFilter: 'blur(6px)',
+                    color: 'var(--gold)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 14px rgba(0,0,0,0.6)',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--gold)'; e.currentTarget.style.color = '#000'; e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(15, 15, 15, 0.9)'; e.currentTarget.style.color = 'var(--gold)'; e.currentTarget.style.transform = 'translateY(-50%) scale(1)'; }}
+                >
+                  <ChevronLeft size={20} />
+                </button>
+
+                <div 
+                  ref={crossSellRef}
+                  className="slider-no-scrollbar"
+                  style={{ 
+                    display: 'flex', 
+                    overflowX: 'auto', 
+                    gap: '1rem', 
+                    padding: '0.5rem 1rem 1rem 1rem', 
+                    scrollbarWidth: 'none', 
+                    msOverflowStyle: 'none',
+                    WebkitOverflowScrolling: 'touch',
+                    scrollBehavior: 'smooth',
+                    width: '100%'
+                  }}
+                >
                   {crossSellItems.map(item => (
                     <div key={item.id} style={{ minWidth: '220px', flexShrink: 0, padding: '1rem', border: '1px solid var(--border-color)', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '0.8rem', backgroundColor: 'rgba(255,255,255,0.02)' }}>
                       {item.img && <img src={item.img} alt={item.name_en} style={{ width: '100%', height: '120px', objectFit: 'cover', borderRadius: '8px' }} />}
@@ -950,6 +1075,38 @@ function CheckoutInternal({ isModal = false, onClose }) {
                     </div>
                   ))}
                 </div>
+
+                {/* Floating Right Arrow */}
+                <button
+                  type="button"
+                  onClick={() => handleScrollCrossSell('right')}
+                  aria-label="Scroll right"
+                  style={{
+                    position: 'absolute',
+                    right: '-6px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    zIndex: 10,
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '50%',
+                    border: '1.5px solid var(--gold)',
+                    backgroundColor: 'rgba(15, 15, 15, 0.9)',
+                    backdropFilter: 'blur(6px)',
+                    color: 'var(--gold)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 14px rgba(0,0,0,0.6)',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--gold)'; e.currentTarget.style.color = '#000'; e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(15, 15, 15, 0.9)'; e.currentTarget.style.color = 'var(--gold)'; e.currentTarget.style.transform = 'translateY(-50%) scale(1)'; }}
+                >
+                  <ChevronRight size={20} />
+                </button>
+              </div>
                 <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
                   <button 
                     type="button"
