@@ -17,11 +17,20 @@ export default {
       return env.ASSETS.fetch(request);
     }
 
-    // For all SPA routes, serve index.html via GET method
+    // For all SPA routes, serve index.html via GET method with anti-cache headers
     const indexUrl = new URL('/index.html', url.origin);
-    return env.ASSETS.fetch(new Request(indexUrl.toString(), {
+    const response = await env.ASSETS.fetch(new Request(indexUrl.toString(), {
       method: 'GET',
       headers: request.headers
     }));
+    const newHeaders = new Headers(response.headers);
+    newHeaders.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    newHeaders.set('Pragma', 'no-cache');
+    newHeaders.set('Expires', '0');
+    return new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: newHeaders
+    });
   },
 };

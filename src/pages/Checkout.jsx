@@ -262,7 +262,7 @@ function CheckoutForm({ formData, setFormData, cart, cartTotal, status, setStatu
   }, [status.type]);
 
   return (
-    <form onSubmit={handleCheckout} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+    <form onSubmit={handleCheckout} autoComplete="off" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
 
       {/* 1. Delivery or Pickup Details */}
       <div style={{ padding: '2rem', backgroundColor: 'var(--card-bg)', borderRadius: '12px', border: '1px solid var(--border-color)', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
@@ -281,12 +281,17 @@ function CheckoutForm({ formData, setFormData, cart, cartTotal, status, setStatu
           {/* Phone Number */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <label htmlFor="phone" style={labelStyle}>{t.phone}</label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <input type="tel" id="phone" name="phone" value={formData.phone || ''} onChange={handleChange} required maxLength="11" placeholder={language === 'ar' ? '' : ''} style={{ ...inputStyle, flex: 1 }} />
-              <span style={{ whiteSpace: 'nowrap', fontSize: '0.85rem', color: '#25D366', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                <span>📱</span>{t.whatsapp}
-              </span>
-            </div>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              value={formData.phone || ''}
+              onChange={handleChange}
+              required
+              maxLength="11"
+              placeholder={language === 'ar' ? 'رقم الهاتف' : 'Phone Number'}
+              style={inputStyle}
+            />
           </div>
 
           {/* Address fields: Only displayed for Delivery */}
@@ -720,6 +725,23 @@ function CheckoutInternal({ isModal = false, onClose }) {
     selectedBranch: 'branch-1'
   });
   const [status, setStatus] = useState({ type: '', message: '' });
+
+  // Clear cached form inputs and status when leaving the checkout
+  useEffect(() => {
+    return () => {
+      setFormData({
+        name: '',
+        phone: '',
+        street: '',
+        building: '',
+        floor: '',
+        notes: '',
+        paymentMethod: 'cash',
+        selectedBranch: 'branch-1'
+      });
+      setStatus({ type: '', message: '' });
+    };
+  }, []);
 
   const EmptyCartView = () => (
     <div className="container" style={{ padding: '8rem 0', textAlign: 'center', minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>

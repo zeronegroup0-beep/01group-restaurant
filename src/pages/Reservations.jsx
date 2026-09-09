@@ -50,6 +50,23 @@ export default function Reservations() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [confirmCountdown, setConfirmCountdown] = useState(5);
 
+  // Clear any cached reservation form inputs / status when leaving the page
+  useEffect(() => {
+    return () => {
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        date: '',
+        time: '',
+        tableId: '',
+        guests: ''
+      });
+      setStatus({ type: '', message: '' });
+      setBookedSlots([]);
+    };
+  }, []);
+
   useEffect(() => {
     let timer;
     if (showConfirmModal && confirmCountdown > 0) {
@@ -227,7 +244,7 @@ export default function Reservations() {
       <section className="section container" style={{ maxWidth: '860px' }}>
         <div className="scale-in" style={{ backgroundColor: 'var(--card-bg)', padding: 'clamp(1.5rem, 5vw, 4rem)', borderRadius: '16px', border: '1px solid var(--border-color)', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+          <form onSubmit={handleSubmit} autoComplete="off" style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <label style={{ fontSize: '1.3rem', color: 'var(--gold)', fontWeight: 'bold' }}>
@@ -297,12 +314,17 @@ export default function Reservations() {
                 <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} required placeholder={language === 'ar' ? 'الاسم الكامل' : 'Full Name'} style={{ padding: '1rem', borderRadius: '8px', border: '2px solid #000', backgroundColor: '#fff', color: '#000', fontSize: '1.1rem' }} />
                 <input type="number" id="guests" name="guests" min="1" max="12" value={formData.guests} onChange={handleChange} required placeholder={language === 'ar' ? 'عدد الأشخاص' : 'Number of Guests'} style={{ padding: '1rem', borderRadius: '8px', border: '2px solid #000', backgroundColor: '#fff', color: '#000', fontSize: '1.1rem' }} />
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <input type="tel" id="phone" name="phone" value={formData.phone} onChange={handleChange} required maxLength="11" placeholder={language === 'ar' ? 'رقم الهاتف' : 'Phone Number'} style={{ flex: 1, padding: '1rem', borderRadius: '8px', border: '2px solid #000', backgroundColor: '#fff', color: '#000', fontSize: '1.1rem' }} />
-                <span style={{ whiteSpace: 'nowrap', fontSize: '0.85rem', color: '#25D366', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                  <span>📱</span>{language === 'ar' ? 'داعم للواتساب *' : 'Supports WhatsApp *'}
-                </span>
-              </div>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                required
+                maxLength="11"
+                placeholder={language === 'ar' ? 'رقم الهاتف' : 'Phone Number'}
+                style={{ width: '100%', boxSizing: 'border-box', padding: '1rem', borderRadius: '8px', border: '2px solid #000', backgroundColor: '#fff', color: '#000', fontSize: '1.1rem' }}
+              />
               <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} placeholder={language === 'ar' ? 'البريد الإلكتروني (اختياري)' : 'Email Address (optional)'} style={{ padding: '1rem', borderRadius: '8px', border: '2px solid #000', backgroundColor: '#fff', color: '#000', fontSize: '1.1rem' }} />
             </div>
 
