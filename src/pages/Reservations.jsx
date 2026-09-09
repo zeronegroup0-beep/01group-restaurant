@@ -323,7 +323,7 @@ export default function Reservations() {
                 required
                 maxLength="11"
                 placeholder={language === 'ar' ? 'رقم الهاتف' : 'Phone Number'}
-                style={{ width: '100%', boxSizing: 'border-box', padding: '1rem', borderRadius: '8px', border: '2px solid #000', backgroundColor: '#fff', color: '#000', fontSize: '1.1rem' }}
+                style={{ width: '100%', boxSizing: 'border-box', padding: '1rem', borderRadius: '8px', border: '2px solid #000', backgroundColor: '#fff', color: '#000', fontSize: '1.1rem', textAlign: language === 'ar' ? 'right' : 'left', direction: language === 'ar' ? 'rtl' : 'ltr' }}
               />
               <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} placeholder={language === 'ar' ? 'البريد الإلكتروني (اختياري)' : 'Email Address (optional)'} style={{ padding: '1rem', borderRadius: '8px', border: '2px solid #000', backgroundColor: '#fff', color: '#000', fontSize: '1.1rem' }} />
             </div>

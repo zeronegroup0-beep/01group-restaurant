@@ -290,7 +290,7 @@ function CheckoutForm({ formData, setFormData, cart, cartTotal, status, setStatu
               required
               maxLength="11"
               placeholder={language === 'ar' ? 'رقم الهاتف' : 'Phone Number'}
-              style={inputStyle}
+              style={{ ...inputStyle, textAlign: language === 'ar' ? 'right' : 'left', direction: language === 'ar' ? 'rtl' : 'ltr' }}
             />
           </div>
 
@@ -1137,27 +1137,6 @@ function CheckoutInternal({ isModal = false, onClose }) {
                   <ChevronRight size={20} />
                 </button>
               </div>
-                <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-                  <button 
-                    type="button"
-                    onClick={() => setShowRecModal(true)}
-                    style={{
-                      background: 'none', border: '1px solid var(--gold)', color: 'var(--gold)',
-                      padding: '0.8rem 1.5rem', borderRadius: '25px', fontWeight: 'bold',
-                      cursor: 'pointer', transition: 'all 0.2s'
-                    }}
-                    onMouseEnter={e => {
-                      e.currentTarget.style.backgroundColor = 'var(--gold)';
-                      e.currentTarget.style.color = '#000';
-                    }}
-                    onMouseLeave={e => {
-                      e.currentTarget.style.backgroundColor = 'transparent';
-                      e.currentTarget.style.color = 'var(--gold)';
-                    }}
-                  >
-                    {language === 'ar' ? 'عرض مقترحات أخرى ➔' : 'Show more recommendations ➔'}
-                  </button>
-                </div>
             </div>
           </div>
         )}
