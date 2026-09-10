@@ -121,22 +121,58 @@ export default function AdminCategories({ categories, fetchData, API, showToast 
   const inputStyle = {
     padding: '0.8rem 1rem',
     borderRadius: '8px',
-    border: '1px solid var(--border-color)',
-    backgroundColor: 'var(--bg-color)',
-    color: '#fff',
+    border: '1.5px solid var(--border-color)',
+    backgroundColor: '#ffffff',
+    color: '#111827',
+    WebkitTextFillColor: '#111827',
     width: '100%',
     fontSize: '0.95rem',
     outline: 'none',
-    direction: 'ltr',
+    fontWeight: '500',
+    boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04)'
   };
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', alignItems: 'start' }}>
       {/* ── Form ── */}
-      <div style={{ backgroundColor: 'var(--card-bg)', padding: '1.8rem', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
-        <h3 style={{ marginBottom: '1.5rem', color: 'var(--gold)' }}>
-          {formData.id ? lbl('✏️ Edit Category', '✏️ تعديل القسم') : lbl('➕ Add Category', '➕ إضافة قسم')}
-        </h3>
+      <div 
+        id="admin-category-form"
+        style={{ 
+          backgroundColor: 'var(--card-bg)', 
+          padding: '1.8rem', 
+          borderRadius: '14px', 
+          border: formData.id ? '2px solid var(--gold)' : '1px solid var(--border-color)',
+          boxShadow: formData.id ? '0 0 20px rgba(229,185,66,0.15)' : 'none',
+          transition: 'border 0.3s, box-shadow 0.3s'
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.8rem' }}>
+          <h3 style={{ margin: 0, color: 'var(--gold)' }}>
+            {formData.id ? lbl('✏️ Edit Category', '✏️ تعديل القسم') : lbl('➕ Add Category', '➕ إضافة قسم')}
+          </h3>
+          {formData.id && (
+            <button
+              type="button"
+              onClick={() => setFormData(EMPTY)}
+              style={{
+                padding: '0.35rem 0.8rem',
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                color: 'var(--brand-red)',
+                border: '1px solid var(--brand-red)',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '0.8rem',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+            >
+              <X size={13} />
+              {lbl('Cancel', 'إلغاء')}
+            </button>
+          )}
+        </div>
         <form onSubmit={confirmSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div>
             <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '4px', display: 'block' }}>
@@ -272,7 +308,7 @@ export default function AdminCategories({ categories, fetchData, API, showToast 
             placeholder={lbl('Search categories...', 'ابحث عن قسم...')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ padding: '0.6rem 1rem', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: '#fff', minWidth: '220px' }}
+            style={{ padding: '0.6rem 1rem', borderRadius: '8px', border: '1.5px solid var(--border-color)', backgroundColor: '#ffffff', color: '#111827', WebkitTextFillColor: '#111827', minWidth: '220px', fontWeight: '500' }}
           />
         </div>
         <table className="responsive-table" style={{ width: '100%', textAlign: isRTL ? 'right' : 'left', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
@@ -307,7 +343,12 @@ export default function AdminCategories({ categories, fetchData, API, showToast 
                 </td>
                 <td data-label={lbl('Actions', 'الإجراءات')} style={{ padding: '0.8rem 1rem' }}>
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button onClick={() => setFormData({ ...cat, img: cat.img || '', desc_en: cat.desc_en || '', desc_ar: cat.desc_ar || '' })}
+                    <button onClick={() => {
+                        setFormData({ ...cat, img: cat.img || '', desc_en: cat.desc_en || '', desc_ar: cat.desc_ar || '' });
+                        setTimeout(() => {
+                          document.getElementById('admin-category-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }, 50);
+                      }}
                       style={{ padding: '0.4rem 0.8rem', backgroundColor: 'rgba(229,185,66,0.15)', color: 'var(--gold)', border: '1px solid var(--gold)', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
                       <Pencil size={14} /> {lbl('Edit', 'تعديل')}
                     </button>

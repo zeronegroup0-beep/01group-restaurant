@@ -39,9 +39,13 @@ export default function AdminProducts({ products, categories, fetchData, API, sh
 
   const inputStyle = {
     padding: '0.8rem 1rem', borderRadius: '8px',
-    border: '1px solid var(--border-color)',
-    backgroundColor: 'var(--bg-color)', color: '#fff',
-    width: '100%', fontSize: '0.9rem', outline: 'none',
+    border: '1.5px solid var(--border-color)',
+    backgroundColor: '#ffffff',
+    color: '#111827',
+    WebkitTextFillColor: '#111827',
+    width: '100%', fontSize: '0.95rem', outline: 'none',
+    fontWeight: '500',
+    boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04)'
   };
 
   const processFile = (file) => {
@@ -228,10 +232,29 @@ export default function AdminProducts({ products, categories, fetchData, API, sh
   };
 
   const handleEdit = (prod) => {
-    const isMulti = typeof prod.price === 'object' && prod.price !== null;
+    let parsedPrice = prod.price;
+    if (typeof parsedPrice === 'string') {
+      try {
+        parsedPrice = JSON.parse(parsedPrice);
+      } catch (e) {
+        const num = Number(parsedPrice);
+        if (!isNaN(num)) parsedPrice = num;
+      }
+    }
+
+    const isMulti = typeof parsedPrice === 'object' && parsedPrice !== null && !Array.isArray(parsedPrice);
+
     let rawSauces = [];
-    if (Array.isArray(prod.sauces)) {
-      rawSauces = prod.sauces.map((s, idx) => {
+    let saucesSource = prod.sauces;
+    if (typeof saucesSource === 'string') {
+      try {
+        saucesSource = JSON.parse(saucesSource);
+      } catch (e) {
+        saucesSource = [];
+      }
+    }
+    if (Array.isArray(saucesSource)) {
+      rawSauces = saucesSource.map((s) => {
         if (typeof s === 'string') return { name: s, price: 0, is_default: false };
         return {
           name: s.name || '',
@@ -244,10 +267,28 @@ export default function AdminProducts({ products, categories, fetchData, API, sh
       rawSauces[0].is_default = true;
     }
 
+    let rawIngredients = prod.ingredients;
+    if (typeof rawIngredients === 'string') {
+      try {
+        rawIngredients = JSON.parse(rawIngredients);
+      } catch (e) {
+        rawIngredients = [];
+      }
+    }
+    if (!Array.isArray(rawIngredients)) {
+      rawIngredients = [];
+    }
+
+    const sizes = isMulti
+      ? Object.entries(parsedPrice).map(([label, price]) => ({ label, price: String(price) }))
+      : [{ label: '', price: '' }];
+
+    const singlePrice = isMulti ? '' : (parsedPrice !== undefined && parsedPrice !== null ? String(parsedPrice) : '');
+
     setFormData({
       ...EMPTY,
       id: prod.id,
-      category_key: prod.category_key || '',
+      category_key: prod.category_key || prod.category || '',
       key: prod.key || '',
       name_en: prod.name_en || '',
       name_ar: prod.name_ar || '',
@@ -255,23 +296,36 @@ export default function AdminProducts({ products, categories, fetchData, API, sh
       desc_ar: prod.desc_ar || '',
       img: prod.img || '',
       weight: prod.weight || '',
-      is_popular: prod.is_popular || 0,
+      is_popular: prod.is_popular ? 1 : 0,
       offer_type: prod.offer_type || 'none',
       sauces: rawSauces,
-      ingredients: Array.isArray(prod.ingredients) ? prod.ingredients : [],
+      ingredients: rawIngredients,
       priceMode: isMulti ? 'multi' : 'single',
-      singlePrice: isMulti ? '' : String(prod.price || ''),
-      sizes: isMulti
-        ? Object.entries(prod.price).map(([label, price]) => ({ label, price: String(price) }))
-        : [{ label: '', price: '' }],
+      singlePrice: singlePrice,
+      sizes: sizes.length > 0 ? sizes : [{ label: '', price: '' }],
     });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    setTimeout(() => {
+      const el = document.getElementById('admin-product-form');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }, 50);
   };
 
   const displayPrice = (price) => {
-    if (typeof price === 'object' && price !== null) {
-      const min = Math.min(...Object.values(price));
-      return `${lbl('From', 'من')} ${min} ${lbl('EGP', 'ج.م')}`;
+    let p = price;
+    if (typeof p === 'string') {
+      try { p = JSON.parse(p); } catch (e) {}
+    }
+    if (typeof p === 'object' && p !== null) {
+      const vals = Object.values(p).map(Number).filter(v => !isNaN(v));
+      if (vals.length > 0) {
+        const min = Math.min(...vals);
+        return `${lbl('From', 'من')} ${min} ${lbl('EGP', 'ج.م')}`;
+      }
     }
     return `${price} ${lbl('EGP', 'ج.م')}`;
   };
@@ -281,10 +335,46 @@ export default function AdminProducts({ products, categories, fetchData, API, sh
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       {/* Form Section */}
-      <div style={{ backgroundColor: 'rgba(255,255,255,0.02)', padding: 'clamp(1rem, 3vw, 2rem)', borderRadius: '16px', border: '1px solid var(--border-color)' }}>
-        <h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', color: 'var(--gold)' }}>
-          {formData.id ? lbl('تعديل منتج', 'Edit Product') : lbl('إضافة منتج جديد', 'Add New Product')}
-        </h2>
+      <div 
+        id="admin-product-form"
+        style={{ 
+          backgroundColor: 'var(--card-bg)', 
+          padding: 'clamp(1rem, 3vw, 2rem)', 
+          borderRadius: '16px', 
+          border: formData.id ? '2px solid var(--gold)' : '1px solid var(--border-color)',
+          boxShadow: formData.id ? '0 0 20px rgba(229,185,66,0.15)' : 'none',
+          transition: 'border 0.3s, box-shadow 0.3s'
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+          <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--gold)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {formData.id 
+              ? `✏️ ${lbl('Editing:', 'جاري تعديل:')} ${isRTL ? formData.name_ar || formData.name_en : formData.name_en || formData.name_ar}` 
+              : `➕ ${lbl('Add New Product', 'إضافة منتج جديد')}`}
+          </h2>
+          {formData.id && (
+            <button
+              type="button"
+              onClick={() => setFormData(EMPTY)}
+              style={{
+                padding: '0.4rem 0.9rem',
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                color: 'var(--brand-red)',
+                border: '1px solid var(--brand-red)',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '0.85rem',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px'
+              }}
+            >
+              <X size={14} />
+              {lbl('Cancel Edit / New Product', 'إلغاء التعديل / إضافة جديد')}
+            </button>
+          )}
+        </div>
 
         <form onSubmit={confirmSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px,1fr))', gap: '1rem' }}>
@@ -577,7 +667,7 @@ export default function AdminProducts({ products, categories, fetchData, API, sh
             placeholder={lbl('Search products...', 'ابحث عن منتج...')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ padding: '0.6rem 1rem', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: '#fff', minWidth: '220px' }}
+            style={{ padding: '0.6rem 1rem', borderRadius: '8px', border: '1.5px solid var(--border-color)', backgroundColor: '#ffffff', color: '#111827', WebkitTextFillColor: '#111827', minWidth: '220px', fontWeight: '500' }}
           />
         </div>
         <table className="responsive-table" style={{ width: '100%', textAlign: isRTL ? 'right' : 'left', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
