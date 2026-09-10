@@ -95,11 +95,36 @@ export default function AdminProducts({ products, categories, fetchData, API, sh
   });
 
   // --- Array helpers (sauces / ingredients) ---
-  const addArrayItem = (field) => setFormData(f => ({ 
-    ...f, 
-    [field]: [...f[field], field === 'sauces' ? { name: '', price: '' } : ''] 
-  }));
-  const removeArrayItem = (field, i) => setFormData(f => ({ ...f, [field]: f[field].filter((_, idx) => idx !== i) }));
+  const addArrayItem = (field) => setFormData(f => {
+    if (field === 'sauces') {
+      const isFirst = f.sauces.length === 0;
+      return {
+        ...f,
+        sauces: [...f.sauces, { name: '', price: isFirst ? '0' : '', is_default: isFirst }]
+      };
+    }
+    return { ...f, [field]: [...f[field], ''] };
+  });
+
+  const removeArrayItem = (field, i) => setFormData(f => {
+    const nextArr = f[field].filter((_, idx) => idx !== i);
+    if (field === 'sauces') {
+      const hadDefault = nextArr.some(s => s.is_default);
+      if (!hadDefault && nextArr.length > 0) {
+        nextArr[0] = { ...nextArr[0], is_default: true };
+      }
+    }
+    return { ...f, [field]: nextArr };
+  });
+
+  const setDefaultSauce = (index) => setFormData(f => {
+    const updated = f.sauces.map((s, idx) => ({
+      ...s,
+      is_default: idx === index
+    }));
+    return { ...f, sauces: updated };
+  });
+
   const updateArrayItem = (field, i, val, key = null) => setFormData(f => {
     const arr = [...f[field]];
     if (field === 'sauces' && key) {
@@ -142,6 +167,18 @@ export default function AdminProducts({ products, categories, fetchData, API, sh
       ? `${API}/api/admin/products/${formData.id}`
       : `${API}/api/admin/products`;
     try {
+      const validSauces = formData.sauces
+        .filter(s => typeof s === 'string' ? s.trim() : (s.name && s.name.trim()))
+        .map((s, idx, arr) => {
+          const hasDefault = arr.some(item => Boolean(item.is_default));
+          const isDef = hasDefault ? Boolean(s.is_default) : (idx === 0);
+          return {
+            name: typeof s === 'string' ? s.trim() : s.name.trim(),
+            price: Number(s.price) || 0,
+            is_default: isDef
+          };
+        });
+
       const payload = {
         category_key: formData.category_key,
         key: finalKey,
@@ -153,7 +190,7 @@ export default function AdminProducts({ products, categories, fetchData, API, sh
         weight: formData.weight,
         is_popular: formData.is_popular,
         offer_type: formData.offer_type || 'none',
-        sauces: formData.sauces.filter(s => typeof s === 'string' ? s.trim() : (s.name && s.name.trim())),
+        sauces: validSauces,
         ingredients: formData.ingredients.filter(i => typeof i === 'string' ? i.trim() : true),
         price: buildPrice(),
       };
@@ -192,6 +229,21 @@ export default function AdminProducts({ products, categories, fetchData, API, sh
 
   const handleEdit = (prod) => {
     const isMulti = typeof prod.price === 'object' && prod.price !== null;
+    let rawSauces = [];
+    if (Array.isArray(prod.sauces)) {
+      rawSauces = prod.sauces.map((s, idx) => {
+        if (typeof s === 'string') return { name: s, price: 0, is_default: false };
+        return {
+          name: s.name || '',
+          price: s.price !== undefined ? String(s.price) : '0',
+          is_default: Boolean(s.is_default)
+        };
+      });
+    }
+    if (rawSauces.length > 0 && !rawSauces.some(s => s.is_default)) {
+      rawSauces[0].is_default = true;
+    }
+
     setFormData({
       ...EMPTY,
       id: prod.id,
@@ -205,7 +257,7 @@ export default function AdminProducts({ products, categories, fetchData, API, sh
       weight: prod.weight || '',
       is_popular: prod.is_popular || 0,
       offer_type: prod.offer_type || 'none',
-      sauces: Array.isArray(prod.sauces) ? prod.sauces.map(s => typeof s === 'string' ? { name: s, price: 0 } : s) : [],
+      sauces: rawSauces,
       ingredients: Array.isArray(prod.ingredients) ? prod.ingredients : [],
       priceMode: isMulti ? 'multi' : 'single',
       singlePrice: isMulti ? '' : String(prod.price || ''),
@@ -385,33 +437,81 @@ export default function AdminProducts({ products, categories, fetchData, API, sh
             )}
           </div>
 
-          {/* ── INGREDIENTS & SAUCES ── */}
-          {['ingredients', 'sauces'].map(field => (
-            <div key={field} style={{ marginTop: '1.2rem', padding: '1rem', backgroundColor: 'var(--bg-color)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
-              <label style={{ ...sectionLabel, fontSize: '0.9rem', marginBottom: '0.8rem' }}>
-                {field === 'ingredients' ? lbl('🥗 Ingredients', '🥗 المكونات') : lbl('🥫 Sauces & Extras', '🥫 الصوصات والإضافات')}
+          {/* ── INGREDIENTS SECTION ── */}
+          <div style={{ marginTop: '1.2rem', padding: '1rem', backgroundColor: 'var(--bg-color)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+            <label style={{ ...sectionLabel, fontSize: '0.9rem', marginBottom: '0.8rem' }}>
+              🥗 {lbl('Ingredients', 'المكونات')}
+            </label>
+            {formData.ingredients.map((val, i) => (
+              <div key={i} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'center' }}>
+                <input type="text" value={val} onChange={e => updateArrayItem('ingredients', i, e.target.value)} style={{ ...inputStyle, flex: 1 }} placeholder={lbl('e.g. Cheese', 'مثال: جبنة')} />
+                <button type="button" onClick={() => removeArrayItem('ingredients', i)} style={{ background: 'none', border: 'none', color: 'var(--brand-red)', cursor: 'pointer', padding: '4px' }}>
+                  <X size={18} />
+                </button>
+              </div>
+            ))}
+            <button type="button" onClick={() => addArrayItem('ingredients')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 10px', backgroundColor: 'rgba(34,197,94,0.1)', color: '#22C55E', border: '1px solid #22C55E', borderRadius: '6px', cursor: 'pointer', fontSize: '0.82rem', marginTop: '0.3rem' }}>
+              <Plus size={14} /> {lbl('Add Ingredient', 'إضافة مكون')}
+            </button>
+          </div>
+
+          {/* ── SAUCES SECTION (WITH DEFAULT SAUCE SELECTION) ── */}
+          <div style={{ marginTop: '1.2rem', padding: '1rem', backgroundColor: 'var(--bg-color)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <label style={{ ...sectionLabel, fontSize: '0.9rem', margin: 0 }}>
+                🥫 {lbl('Sauces & Extras', 'الصوصات والإضافات')}
               </label>
-              {formData[field].map((val, i) => (
-                <div key={i} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'center' }}>
-                  {field === 'ingredients' ? (
-                    <input type="text" value={val} onChange={e => updateArrayItem(field, i, e.target.value)} style={{ ...inputStyle, flex: 1 }} placeholder={lbl('e.g. Cheese', 'مثال: جبنة')} />
-                  ) : (
-                    <>
-                      <input type="text" value={val.name} onChange={e => updateArrayItem(field, i, e.target.value, 'name')} style={{ ...inputStyle, flex: 2 }} placeholder={lbl('Extra name (e.g. Garlic)', 'اسم الإضافة')} />
-                      <input type="number" min="0" value={val.price} onChange={e => updateArrayItem(field, i, e.target.value, 'price')} style={{ ...inputStyle, flex: 1 }} placeholder={lbl('Price', 'السعر')} />
-                      <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>{lbl('EGP', 'ج.م')}</span>
-                    </>
-                  )}
-                  <button type="button" onClick={() => removeArrayItem(field, i)} style={{ background: 'none', border: 'none', color: 'var(--brand-red)', cursor: 'pointer', padding: '4px' }}>
-                    <X size={18} />
-                  </button>
-                </div>
-              ))}
-              <button type="button" onClick={() => addArrayItem(field)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 10px', backgroundColor: 'rgba(34,197,94,0.1)', color: '#22C55E', border: '1px solid #22C55E', borderRadius: '6px', cursor: 'pointer', fontSize: '0.82rem', marginTop: '0.3rem' }}>
-                <Plus size={14} /> {lbl('Add', 'إضافة')}
-              </button>
+              <span style={{ fontSize: '0.78rem', color: 'var(--gold)', fontWeight: 600 }}>
+                {lbl('⭐ Select the Primary / Default Sauce (included free)', '⭐ حدد الصوص الأساسي/الافتراضي (يأتي مجاناً مع الطلب)')}
+              </span>
             </div>
-          ))}
+            {formData.sauces.map((val, i) => (
+              <div key={i} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.6rem', alignItems: 'center', flexWrap: 'wrap', backgroundColor: val.is_default ? 'rgba(212, 175, 55, 0.05)' : 'transparent', padding: '0.4rem', borderRadius: '8px', border: val.is_default ? '1px solid rgba(212, 175, 55, 0.3)' : '1px solid transparent' }}>
+                <input
+                  type="text"
+                  value={val.name}
+                  onChange={e => updateArrayItem('sauces', i, e.target.value, 'name')}
+                  style={{ ...inputStyle, flex: 2, minWidth: '130px' }}
+                  placeholder={lbl('Extra / Sauce name (e.g. Garlic)', 'اسم الصوص / الإضافة (مثال: تومية)')}
+                />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flex: 1, minWidth: '100px' }}>
+                  <input
+                    type="number"
+                    min="0"
+                    value={val.price}
+                    onChange={e => updateArrayItem('sauces', i, e.target.value, 'price')}
+                    style={{ ...inputStyle, flex: 1 }}
+                    placeholder={lbl('Price', 'السعر')}
+                  />
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>{lbl('EGP', 'ج.م')}</span>
+                </div>
+                {/* Default Sauce Button */}
+                <button
+                  type="button"
+                  onClick={() => setDefaultSauce(i)}
+                  title={val.is_default ? lbl('Default Sauce (included free)', 'الصوص الأساسي الافتراضي للمنتج') : lbl('Click to set as primary default sauce', 'اضغط لتعيين هذا الصوص كصوص أساسي')}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '4px',
+                    padding: '0.55rem 0.85rem', borderRadius: '6px',
+                    fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer',
+                    border: val.is_default ? '1px solid var(--gold)' : '1px solid rgba(255,255,255,0.15)',
+                    backgroundColor: val.is_default ? 'var(--gold)' : 'rgba(255,255,255,0.05)',
+                    color: val.is_default ? '#000' : 'var(--text-secondary)',
+                    transition: 'all 0.2s',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {val.is_default ? '⭐ ' + lbl('Default Sauce', 'الصوص الأساسي') : lbl('Set as Default', 'تعيين كأساسي')}
+                </button>
+                <button type="button" onClick={() => removeArrayItem('sauces', i)} style={{ background: 'none', border: 'none', color: 'var(--brand-red)', cursor: 'pointer', padding: '4px' }}>
+                  <X size={18} />
+                </button>
+              </div>
+            ))}
+            <button type="button" onClick={() => addArrayItem('sauces')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 12px', backgroundColor: 'rgba(34,197,94,0.1)', color: '#22C55E', border: '1px solid #22C55E', borderRadius: '6px', cursor: 'pointer', fontSize: '0.82rem', marginTop: '0.4rem' }}>
+              <Plus size={14} /> {lbl('Add Sauce', 'إضافة صوص')}
+            </button>
+          </div>
 
           {/* Submit / Cancel */}
           <div style={{ display: 'flex', gap: '0.8rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>

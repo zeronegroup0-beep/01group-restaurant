@@ -46,11 +46,45 @@ const getRelatedProducts = (currentProduct, allProducts) => {
   return related;
 };
 
+const parseProductSauces = (prod) => {
+  if (!prod || !prod.sauces) return [];
+  let raw = prod.sauces;
+  if (typeof raw === 'string') {
+    try { raw = JSON.parse(raw); } catch { raw = []; }
+  }
+  if (!Array.isArray(raw)) return [];
+
+  const list = raw.map((sauce, idx) => {
+    if (typeof sauce === 'string') {
+      return {
+        id: `item-sauce-${sauce}-${idx}`,
+        name_ar: sauce,
+        name_en: sauce,
+        price: 0,
+        is_default: false
+      };
+    }
+    return {
+      id: `item-sauce-${sauce.name || idx}-${idx}`,
+      name_ar: sauce.name_ar || sauce.name || '',
+      name_en: sauce.name_en || sauce.name || '',
+      price: Number(sauce.price) || 0,
+      is_default: Boolean(sauce.is_default)
+    };
+  });
+
+  // If no sauce has is_default = true, automatically set the FIRST sauce as default!
+  if (list.length > 0 && !list.some(s => s.is_default)) {
+    list[0].is_default = true;
+  }
+  return list;
+};
+
 export default function ProductModal({
   item: initialItem,
   categoriesData = [],
   availableSauces = [],
-  maxFreeSauces = 2,
+  maxFreeSauces = 1,
   onClose,
   onSave,
   onNavigateToProduct,
@@ -115,10 +149,16 @@ export default function ProductModal({
 
   useEffect(() => {
     if (item) {
+      const parsedSauces = parseProductSauces(item);
+      const defaultSauceObj = parsedSauces.find(s => s.is_default) || parsedSauces[0];
+      const defaultSauceName = defaultSauceObj
+        ? (language === 'ar' ? (defaultSauceObj.name_ar || defaultSauceObj.name_en) : (defaultSauceObj.name_en || defaultSauceObj.name_ar))
+        : null;
+
       if (isEditMode) {
         setQuantity(item.quantity || 1);
         setSelectedSpiciness(item.selectedSpiciness || 'عادي');
-        setSelectedSauces(item.selectedSauces || []);
+        setSelectedSauces(item.selectedSauces && item.selectedSauces.length > 0 ? item.selectedSauces : (defaultSauceName ? [defaultSauceName] : []));
         setSpecialNote(item.specialNote || '');
         if (typeof item.price === 'object' && item.price !== null) {
           setSelectedSize(item.selectedSize || Object.keys(item.price)[0]);
@@ -128,7 +168,7 @@ export default function ProductModal({
       } else {
         setQuantity(1);
         setSelectedSpiciness('عادي');
-        setSelectedSauces([]);
+        setSelectedSauces(defaultSauceName ? [defaultSauceName] : []);
         setSpecialNote('');
         if (typeof item.price === 'object' && item.price !== null) {
           setSelectedSize(Object.keys(item.price)[0]);
@@ -137,40 +177,26 @@ export default function ProductModal({
         }
       }
     }
-  }, [item, isEditMode]);
+  }, [item, isEditMode, language]);
 
   if (!item || typeof document === 'undefined') return null;
 
   // Combine item.sauces
-  const combinedSauces = [];
-  if (item.sauces && item.sauces.length > 0) {
-    item.sauces.forEach((sauce, idx) => {
-      if (typeof sauce === 'string') {
-        combinedSauces.push({
-          id: `item-sauce-${sauce}-${idx}`,
-          name_ar: sauce,
-          name_en: sauce,
-          price: 0
-        });
-      } else if (sauce && sauce.name) {
-        combinedSauces.push({
-          id: `item-sauce-${sauce.name}-${idx}`,
-          name_ar: sauce.name,
-          name_en: sauce.name,
-          price: Number(sauce.price) || 0
-        });
-      }
-    });
-  }
+  const combinedSauces = parseProductSauces(item);
 
-  const extraSaucePrice = selectedSauces
-    .map(name => {
+  // Any single sauce chosen (length <= 1) is 100% FREE!
+  // Extra sauce price ONLY applies when 2 or more sauces are chosen (selectedSauces.length > 1).
+  let extraSaucePrice = 0;
+  if (selectedSauces.length > 1) {
+    const saucePrices = selectedSauces.map(name => {
       const sauceObj = combinedSauces.find(s => s.name_ar === name || s.name_en === name);
-      return sauceObj?.price > 0 ? sauceObj.price : 0;
-    })
-    .sort((a, b) => a - b)
-    .slice(maxFreeSauces)
-    .reduce((sum, p) => sum + p, 0);
+      if (sauceObj?.is_default) return 0;
+      return Number(sauceObj?.price) || 0;
+    }).sort((a, b) => a - b);
+
+    // 1 sauce is free (the base one), any additional sauce beyond 1 is charged
+    extraSaucePrice = saucePrices.slice(1).reduce((sum, p) => sum + p, 0);
+  }
 
   const basePrice = selectedSize ? item.price[selectedSize] : item.price;
 
@@ -219,7 +245,7 @@ export default function ProductModal({
     }
   };
 
-  const extraSaucesCount = Math.max(0, selectedSauces.length - maxFreeSauces);
+  const extraSaucesCount = Math.max(0, selectedSauces.length - 1);
 
   return createPortal(
     <div onClick={(e) => { e.stopPropagation(); onClose(); }} style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(4px)', zIndex: 9999, padding: '1rem', overflowY: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -303,7 +329,7 @@ export default function ProductModal({
               <span style={{ fontSize: '0.85rem', color: extraSaucesCount > 0 ? 'var(--gold)' : 'var(--brand-red)', fontWeight: 'bold' }}>
                 {extraSaucesCount > 0
                   ? (language === 'ar' ? `تم إضافة ${extraSaucesCount} صوص إضافي (+${extraSaucePrice} ج.م)` : `${extraSaucesCount} extra sauces added (+${extraSaucePrice} EGP)`)
-                  : (language === 'ar' ? `اختر حتى ${maxFreeSauces} إضافات مجاناً` : `Up to ${maxFreeSauces} additions free`)}
+                  : (language === 'ar' ? 'صوص 1 مجاناً مشمول مع الطلب' : '1 free sauce included')}
               </span>
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem' }}>
@@ -335,6 +361,11 @@ export default function ProductModal({
                     {isSelected && <Check size={16} />}
                     <span>
                       {name}
+                      {sauce.is_default && (
+                        <span style={{ fontSize: '0.78rem', opacity: 0.85, marginInlineStart: '4px' }}>
+                          ({language === 'ar' ? 'أساسي' : 'Default'})
+                        </span>
+                      )}
                       {sauce.price > 0 && ` (+${sauce.price})`}
                     </span>
                   </button>

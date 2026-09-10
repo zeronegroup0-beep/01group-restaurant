@@ -618,7 +618,7 @@ function CheckoutInternal({ isModal = false, onClose }) {
 
   const [editingCartItem, setEditingCartItem] = useState(null);
   const [addedSuggestions, setAddedSuggestions] = useState({});
-  const [maxFreeSauces, setMaxFreeSauces] = useState(2);
+  const [maxFreeSauces, setMaxFreeSauces] = useState(1);
   const [crossSellItems, setCrossSellItems] = useState([]);
   const [showCrossSell, setShowCrossSell] = useState(true);
   const [showRecModal, setShowRecModal] = useState(false);
@@ -660,7 +660,12 @@ function CheckoutInternal({ isModal = false, onClose }) {
   useEffect(() => {
     try {
       const savedMax = localStorage.getItem('maxFreeSauces');
-      if (savedMax) setMaxFreeSauces(parseInt(savedMax, 10));
+      if (savedMax && savedMax !== '2') {
+        setMaxFreeSauces(parseInt(savedMax, 10));
+      } else {
+        localStorage.setItem('maxFreeSauces', '1');
+        setMaxFreeSauces(1);
+      }
     } catch {}
   }, []);
 

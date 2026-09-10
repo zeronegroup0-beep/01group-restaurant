@@ -20,12 +20,17 @@ export default function Menu() {
     return params.get('category') || "all";
   });
   const [searchQuery, setSearchQuery] = useState('');
-  const [maxFreeSauces, setMaxFreeSauces] = useState(2);
+  const [maxFreeSauces, setMaxFreeSauces] = useState(1);
 
   useEffect(() => {
     try {
       const savedMax = localStorage.getItem('maxFreeSauces');
-      if (savedMax) setMaxFreeSauces(parseInt(savedMax, 10));
+      if (savedMax && savedMax !== '2') {
+        setMaxFreeSauces(parseInt(savedMax, 10));
+      } else {
+        localStorage.setItem('maxFreeSauces', '1');
+        setMaxFreeSauces(1);
+      }
     } catch {}
 
     const handleNavigate = (e) => {
